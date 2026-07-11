@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Route42</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #17241c;
+    --panel: #22332a;
+    --panel-alt: #2b3e32;
+    --text: #efead9;
+    --text-muted: #9aab9a;
+    --gold: #d4a72c;
+    --rust: #c1502e;
+    --success: #6fa287;
+    --border: rgba(239,234,217,0.13);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.num{font-family:'Oswald',sans-serif; margin:0;}
+  .app{max-width:1100px; margin:0 auto; padding:24px 20px 60px;}
+
+  /* ---- HERO ---- */
+  .hero{
+    background:linear-gradient(160deg, var(--panel) 0%, var(--bg) 100%);
+    border:1px solid var(--border);
+    border-radius:18px;
+    padding:28px 28px 20px;
+    margin-bottom:24px;
+  }
+  .hero-top{display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:16px;}
+  .eyebrow{font-size:12px; letter-spacing:.14em; color:var(--gold); font-weight:600; margin-bottom:6px;}
+  h1{font-size:36px; font-weight:700; letter-spacing:.01em;}
+  .subtitle{color:var(--text-muted); font-size:14px; margin-top:4px;}
+  .countdown{text-align:right;}
+  .countdown-num{font-size:44px; font-weight:700; color:var(--gold); display:block; line-height:1;}
+  .countdown-label{font-size:12px; color:var(--text-muted); letter-spacing:.05em;}
+  .racedate-row{margin-top:2px; font-size:12px; color:var(--text-muted);}
+  .racedate-row input{
+    background:transparent; border:none; border-bottom:1px dotted var(--text-muted);
+    color:var(--text); font-family:'Inter'; font-size:12px; padding:1px 2px; color-scheme: dark;
+  }
+
+  /* ---- ROUTE TIMELINE (signature element) ---- */
+  .timeline-wrap{margin-top:26px; overflow-x:auto; padding-bottom:6px;}
+  .timeline{display:flex; align-items:flex-end; gap:0; min-width:100%; position:relative; padding-top:18px;}
+  .timeline::before{
+    content:''; position:absolute; left:14px; right:14px; top:32px; height:2px;
+    background:repeating-linear-gradient(90deg, var(--text-muted) 0 6px, transparent 6px 12px);
+    opacity:.35;
+  }
+  .post{
+    flex:1 0 auto; min-width:34px; display:flex; flex-direction:column; align-items:center;
+    position:relative; cursor:pointer;
+  }
+  .post .dot{
+    width:12px; height:12px; border-radius:50%; background:var(--panel-alt); border:2px solid var(--text-muted);
+    z-index:1; transition:transform .15s;
+  }
+  .post.done .dot{background:var(--success); border-color:var(--success);}
+  .post.adjusted .dot{background:var(--rust); border-color:var(--rust);}
+  .post.current .dot{background:var(--gold); border-color:var(--gold); transform:scale(1.4); box-shadow:0 0 0 4px rgba(212,167,44,.2);}
+  .post .wk{font-size:9px; color:var(--text-muted); margin-top:6px;}
+  .post.current .wk{color:var(--gold); font-weight:600;}
+  .flag{font-size:18px; margin-bottom:-2px;}
+
+  /* ---- GRID ---- */
+  .grid{display:grid; grid-template-columns:1.5fr 1fr; gap:20px; align-items:start;}
+  @media (max-width:820px){ .grid{grid-template-columns:1fr;} }
+
+  .card{
+    background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:20px 22px; margin-bottom:16px;
+  }
+  .card h2{font-size:20px; margin-bottom:4px;}
+  .card h3{font-size:14px; letter-spacing:.06em; color:var(--gold); text-transform:uppercase; margin-bottom:14px;}
+  .phase-tag{font-size:12px; color:var(--text-muted); margin-bottom:16px;}
+
+  /* ---- SESSIONS ---- */
+  .session{
+    display:flex; justify-content:space-between; align-items:center; gap:12px;
+    padding:14px 0; border-bottom:1px solid var(--border);
+  }
+  .session:last-child{border-bottom:none;}
+  .session-type{
+    font-size:11px; font-weight:600; letter-spacing:.06em; padding:3px 8px; border-radius:20px; text-transform:uppercase;
+  }
+  .session-type.long{background:rgba(212,167,44,.15); color:var(--gold);}
+  .session-type.quality{background:rgba(193,80,46,.18); color:#e08863;}
+  .session-type.easy{background:rgba(111,162,135,.18); color:var(--success);}
+  .session-main{flex:1;}
+  .session-name{font-weight:600; font-size:15px;}
+  .session-detail{font-size:13px; color:var(--text-muted); margin-top:2px;}
+  .session-status{font-size:12px; color:var(--text-muted); min-width:90px; text-align:right;}
+  .session-status.done{color:var(--success);}
+  .session-status.skipped{color:var(--rust);}
+  .day-badge{
+    font-size:10px; color:var(--gold); border:1px solid var(--border); border-radius:20px;
+    padding:2px 8px; margin-left:8px; vertical-align:middle;
+  }
+  .session-pace{font-size:12px; color:var(--success); margin-top:5px; font-weight:600;}
+  .blocks{display:flex; flex-wrap:wrap; gap:5px; margin-top:8px; align-items:center;}
+  .blocks .legend{width:100%; font-size:11px; color:var(--text-muted); margin-bottom:2px;}
+  .block{font-size:11px; padding:3px 8px; border-radius:6px; font-weight:600;}
+  .block.hard{background:rgba(193,80,46,.18); color:#e08863;}
+  .block.rest{background:rgba(111,162,135,.15); color:var(--success);}
+
+  /* ---- DAY PREFERENCES ---- */
+  .dayprefs{margin-top:20px; padding-top:16px; border-top:1px solid var(--border);}
+  .dayprefs h3{margin-bottom:12px;}
+  .dayrow{display:flex; align-items:center; gap:8px; padding:7px 0; border-bottom:1px solid var(--border); font-size:13px;}
+  .dayrow:last-child{border-bottom:none;}
+  .dayrow .dname{flex:1; color:var(--text-muted); text-transform:capitalize;}
+  .dayrow.unavailable .dname{opacity:.55;}
+  .dayrow select{
+    background:var(--bg); border:1px solid var(--border); border-radius:6px; color:var(--text);
+    font-family:'Inter'; font-size:12px; padding:6px 7px; color-scheme:dark;
+  }
+  .dayrow input[type=number]{
+    width:64px; background:var(--bg); border:1px solid var(--border); border-radius:6px; color:var(--text);
+    font-family:'Inter'; font-size:12px; padding:6px 7px;
+  }
+  .dayrow input[type=number]:disabled{opacity:.35;}
+  .rest-advice{
+    margin-top:12px; font-size:13px; color:var(--gold); background:rgba(212,167,44,.1);
+    border:1px solid rgba(212,167,44,.3); border-radius:10px; padding:10px 12px; line-height:1.5;
+  }
+  .btn{
+    background:var(--gold); color:#1c1608; border:none; border-radius:8px; padding:8px 14px;
+    font-family:'Inter'; font-weight:600; font-size:13px; cursor:pointer; white-space:nowrap;
+  }
+  .btn:hover{filter:brightness(1.08);}
+  .btn.secondary{background:transparent; color:var(--text); border:1px solid var(--border);}
+  .btn.small{padding:5px 10px; font-size:12px;}
+
+  /* ---- PACES ---- */
+  .pace-row{display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--border); font-size:14px;}
+  .pace-row:last-child{border-bottom:none;}
+  .pace-row .label{color:var(--text-muted);}
+  .pace-row .val{font-family:'Oswald'; font-weight:600;}
+  .prediction{margin-top:14px; padding-top:14px; border-top:1px dashed var(--border); font-size:13px; color:var(--text-muted); line-height:1.5;}
+  .prediction strong{color:var(--gold); font-family:'Oswald'; font-size:16px;}
+
+  /* ---- RACES LIST ---- */
+  .race-item{display:flex; justify-content:space-between; font-size:13px; padding:7px 0; border-bottom:1px solid var(--border);}
+  .race-item:last-child{border-bottom:none;}
+  .race-item .rd{color:var(--text-muted); font-size:11px;}
+
+  /* ---- BANNER ---- */
+  .banner{
+    background:rgba(193,80,46,.12); border:1px solid rgba(193,80,46,.4); border-radius:12px;
+    padding:14px 16px; font-size:13px; line-height:1.5; margin-bottom:16px;
+  }
+  .banner.positive{background:rgba(111,162,135,.12); border-color:rgba(111,162,135,.4);}
+  .banner b{display:block; margin-bottom:2px; font-family:'Oswald'; letter-spacing:.02em;}
+
+  /* ---- HISTORY ---- */
+  table{width:100%; border-collapse:collapse; font-size:13px;}
+  th{text-align:left; color:var(--text-muted); font-weight:500; font-size:11px; letter-spacing:.05em; text-transform:uppercase; padding:8px 10px; border-bottom:1px solid var(--border);}
+  td{padding:10px; border-bottom:1px solid var(--border);}
+  tr:last-child td{border-bottom:none;}
+  .empty-state{color:var(--text-muted); font-size:13px; padding:20px 0; text-align:center;}
+
+  /* ---- MODAL ---- */
+  .overlay{position:fixed; inset:0; background:rgba(10,14,10,.6); display:flex; align-items:center; justify-content:center; z-index:50; padding:16px;}
+  .overlay[hidden]{display:none;}
+  .modal{background:var(--panel-alt); border:1px solid var(--border); border-radius:16px; padding:24px; width:100%; max-width:420px;}
+  .modal h3{color:var(--text); font-size:18px; margin-bottom:16px; text-transform:none; letter-spacing:0;}
+  .field{margin-bottom:14px;}
+  .field label{display:block; font-size:12px; color:var(--text-muted); margin-bottom:5px;}
+  .field input, .field select{
+    width:100%; background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:9px 10px;
+    color:var(--text); font-family:'Inter'; font-size:14px; color-scheme: dark;
+  }
+  .feel-options{display:flex; gap:8px;}
+  .feel-options label{
+    flex:1; text-align:center; border:1px solid var(--border); border-radius:8px; padding:8px 4px;
+    font-size:12px; cursor:pointer; color:var(--text-muted);
+  }
+  .feel-options input{display:none;}
+  .feel-options input:checked + span{color:var(--gold); font-weight:600;}
+  .feel-options label:has(input:checked){border-color:var(--gold);}
+  .modal-actions{display:flex; justify-content:space-between; gap:10px; margin-top:20px;}
+
+  footer{text-align:center; color:var(--text-muted); font-size:12px; margin-top:30px;}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="hero">
+    <div class="hero-top">
+      <div>
+        <div class="eyebrow">MARATHONTRAINING</div>
+        <h1>Route42</h1>
+        <div class="subtitle">Van bijna niks naar 42,195 km — het schema past zich aan wat je echt doet.</div>
+      </div>
+      <div class="countdown">
+        <span class="countdown-num" id="daysLeft">—</span>
+        <span class="countdown-label">dagen tot de start</span>
+        <div class="racedate-row">training start <input type="date" id="startDateInput"></div>
+        <div class="racedate-row">marathon op <input type="date" id="raceDateInput"></div>
+      </div>
+    </div>
+    <div class="timeline-wrap">
+      <div class="timeline" id="timeline"></div>
+    </div>
+  </header>
+
+  <div id="bannerZone"></div>
+
+  <div class="grid">
+    <section>
+      <div class="card">
+        <h2 id="weekTitle">Week —</h2>
+        <div class="phase-tag" id="weekPhase"></div>
+        <div class="sessions" id="sessions"></div>
+
+        <div class="dayprefs">
+          <h3>Beschikbaarheid deze week</h3>
+          <div id="dayPrefs"></div>
+          <div class="rest-advice" id="restAdvice"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 style="font-size:16px;">Trainingslog</h2>
+        <div id="historyWrap"></div>
+      </div>
+    </section>
+
+    <aside>
+      <div class="card">
+        <h3>Jouw tempo's</h3>
+        <div id="paces"></div>
+        <div class="prediction" id="prediction"></div>
+      </div>
+
+      <div class="card">
+        <h3>Recente tijden</h3>
+        <div id="racesList"></div>
+        <button class="btn secondary small" id="addRaceBtn" style="margin-top:10px;">+ Tijd toevoegen</button>
+      </div>
+    </aside>
+  </div>
+
+  <footer>Route42 · richtlijn op basis van je eigen tijden, geen medisch advies — bouw rustig op en luister naar je lijf.</footer>
+</div>
+
+<div class="overlay" id="logOverlay" hidden>
+  <div class="modal">
+    <h3 id="logModalTitle">Training loggen</h3>
+    <input type="hidden" id="logSessionId">
+    <div class="field">
+      <label>Afstand (km)</label>
+      <input type="number" step="0.1" id="logDistance">
+    </div>
+    <div class="field">
+      <label>Tijd (minuten, optioneel)</label>
+      <input type="number" step="1" id="logMinutes">
+    </div>
+    <div class="field">
+      <label>Hoe voelde het?</label>
+      <div class="feel-options">
+        <label><input type="radio" name="feel" value="easy"><span>Makkelijker dan verwacht</span></label>
+        <label><input type="radio" name="feel" value="right" checked><span>Zoals gepland</span></label>
+        <label><input type="radio" name="feel" value="hard"><span>Zwaarder dan verwacht</span></label>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn secondary" id="skipBtn">Overslaan</button>
+      <button class="btn" id="saveLogBtn">Opslaan</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="raceOverlay" hidden>
+  <div class="modal">
+    <h3>Nieuwe tijd toevoegen</h3>
+    <div class="field">
+      <label>Afstand (km)</label>
+      <input type="number" step="0.1" id="raceDistance" value="10">
+    </div>
+    <div class="field">
+      <label>Datum</label>
+      <input type="date" id="raceDate">
+    </div>
+    <div class="field">
+      <label>Tijd (mm:ss of h:mm:ss)</label>
+      <input type="text" id="raceTime" placeholder="46:22">
+    </div>
+    <div class="modal-actions">
+      <button class="btn secondary" id="cancelRaceBtn">Annuleren</button>
+      <button class="btn" id="saveRaceBtn">Toevoegen</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'route42-state';
+const DAY = 86400000;
+
+function defaultState(){
+  return {
+    startDate: '2026-07-12',
+    raceDate: '2026-10-11',
+    races: [
+      {id:'r1', distance:5,   date:'2026-06-07', timeSec: 21*60+39},
+      {id:'r2', distance:10,  date:'2026-05-13', timeSec: 46*60+22},
+      {id:'r3', distance:7.5, date:'2026-07-09', timeSec: 35*60+30}
+    ],
+    logs: {},
+    adjustmentFactor: 1.0,
+    nextRaceId: 4,
+    dayPrefs: {}
+  };
+}
+
+let state = null;
+
+// ---------- UTILS ----------
+function secToPace(sec){
+  sec = Math.round(sec);
+  const m = Math.floor(sec/60), s = sec%60;
+  return `${m}:${String(s).padStart(2,'0')}/km`;
+}
+function secToTime(sec){
+  sec = Math.round(sec);
+  const h = Math.floor(sec/3600), m = Math.floor((sec%3600)/60), s = sec%60;
+  return h>0 ? `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}` : `${m}:${String(s).padStart(2,'0')}`;
+}
+function parseTimeToSec(str){
+  const parts = str.trim().split(':').map(Number);
+  if(parts.some(isNaN)) return null;
+  if(parts.length===2) return parts[0]*60+parts[1];
+  if(parts.length===3) return parts[0]*3600+parts[1]*60+parts[2];
+  return null;
+}
+function riegel(t1,d1,d2){ return t1*Math.pow(d2/d1,1.06); }
+function daysBetween(a,b){ return Math.round((b-a)/DAY); }
+function fmtDate(d){
+  return new Date(d).toLocaleDateString('nl-NL', {day:'numeric', month:'short'});
+}
+
+// ---------- PACE CALC ----------
+function calcPaces(){
+  const races = state.races;
+  if(races.length===0) return null;
+  const marathonPredictions = races.map(r => riegel(r.timeSec, r.distance, 42.195));
+  const avgMarathonSec = marathonPredictions.reduce((a,b)=>a+b,0)/marathonPredictions.length;
+  const mPaceSec = avgMarathonSec/42.195;
+
+  const fiveKPredictions = races.map(r => riegel(r.timeSec, r.distance, 5)/5);
+  const intervalPace = Math.min(...fiveKPredictions);
+
+  return {
+    avgMarathonSec,
+    goalMarathonSec: avgMarathonSec * 1.045, // safety buffer given low endurance base
+    easyLow: mPaceSec+65,
+    easyHigh: mPaceSec+100,
+    marathonPace: mPaceSec,
+    thresholdPace: mPaceSec-18,
+    intervalPace
+  };
+}
+
+// ---------- PLAN GENERATION ----------
+function generatePlan(){
+  const startDate = new Date(state.startDate+'T00:00:00');
+  const raceDate = new Date(state.raceDate+'T00:00:00');
+  const totalDays = Math.max(daysBetween(startDate, raceDate), 7);
+  const totalWeeks = Math.max(6, Math.ceil(totalDays/7));
+  const taperWeeks = 2;
+  const startLR = 6;
+  const peakWeekIndex = totalWeeks - taperWeeks - 1;
+  const peakLR = Math.min(32, 14 + peakWeekIndex);
+  const factor = state.adjustmentFactor || 1.0;
+
+  const weeks = [];
+  for(let i=0;i<totalWeeks;i++){
+    const weekNum = i+1;
+    const isRaceWeek = i === totalWeeks-1;
+    const isTaper = i >= totalWeeks - taperWeeks;
+    const isCutback = !isTaper && !isRaceWeek && (weekNum % 4 === 0);
+    const weekStart = new Date(startDate.getTime() + i*7*DAY);
+
+    let lr;
+    if(isRaceWeek){
+      lr = 42.195;
+    } else if(isTaper){
+      const taperIdx = i - (totalWeeks - taperWeeks);
+      lr = Math.round(peakLR * (0.6 - taperIdx*0.18));
+    } else {
+      const progress = peakWeekIndex>0 ? Math.min(1, i/peakWeekIndex) : 1;
+      lr = startLR + (peakLR-startLR)*progress;
+      if(isCutback) lr *= 0.75;
+      lr = Math.round(lr);
+    }
+    if(!isRaceWeek) lr = Math.max(4, Math.round(lr*factor));
+
+    const runDays = isRaceWeek ? 1 : (i<2 ? 3 : (isTaper ? 3 : 4));
+    const sessions = [];
+
+    if(isRaceWeek){
+      sessions.push({idx:0, type:'long', label:'Marathon', detail:`De grote dag — ${lr} km`, km: 42.195, meta:{kind:'race'}});
+    } else {
+      sessions.push({idx:0, type:'long', label:'Lange duurloop', detail:'Rustig tempo, bouw de laatste kilometers eventueel iets op', km: lr, meta:{kind:'longrun'}});
+
+      const isTempo = weekNum % 2 === 1;
+      let qKm = Math.max(4, Math.round((lr*0.35 + 2)*factor));
+      let qDetail, qMeta;
+      if(isTempo){
+        const mins = Math.round(Math.min(35, 15 + weekNum*1.5));
+        qDetail = `${mins} min in tempotempo, in- en uitlopen erbij`;
+        qMeta = {kind:'tempo', minutes: mins};
+      } else {
+        const reps = Math.min(9, 4 + Math.floor(weekNum/3));
+        qDetail = `${reps} × 3 min op intervaltempo, 2 min rustig herstel`;
+        qMeta = {kind:'interval', reps, hardMin:3, restMin:2};
+      }
+      sessions.push({idx:1, type:'quality', label: isTempo?'Tempotraining':'Intervaltraining', detail:qDetail, km:qKm, meta:qMeta});
+
+      const easyKm = Math.max(4, Math.round(lr*0.28*factor));
+      sessions.push({idx:2, type:'easy', label:'Rustige duurloop', detail:'Makkelijk tempo, blijf onder je duurlooptempo', km:easyKm, meta:{kind:'easy'}});
+      if(runDays>=4){
+        sessions.push({idx:3, type:'easy', label:'Herstelloop', detail:'Kort en heel rustig', km: Math.max(4, Math.round(easyKm*0.7)), meta:{kind:'recovery'}});
+      }
+    }
+
+    weeks.push({weekNum, weekStart, isRaceWeek, isTaper, isCutback, runDays, lr, sessions});
+  }
+  return weeks;
+}
+
+function sessionKey(weekNum, idx){ return `w${weekNum}-${idx}`; }
+
+// ---------- DAY AVAILABILITY & REST-DAY ADVICE ----------
+function defaultDayPref(){ return {status:'available', duration:null}; }
+
+function getDayPrefs(weekNum){
+  if(!state.dayPrefs) state.dayPrefs = {};
+  const saved = state.dayPrefs[weekNum] || {};
+  const full = {};
+  for(let i=0;i<7;i++) full[i] = saved[i] || defaultDayPref();
+  return full;
+}
+
+function setDayPref(weekNum, dayIdx, patch){
+  if(!state.dayPrefs) state.dayPrefs = {};
+  if(!state.dayPrefs[weekNum]) state.dayPrefs[weekNum] = {};
+  const cur = state.dayPrefs[weekNum][dayIdx] || defaultDayPref();
+  state.dayPrefs[weekNum][dayIdx] = {...cur, ...patch};
+  save();
+}
+
+function estimateMinutes(s){
+  if(s.type==='quality'){
+    if(s.meta.kind==='tempo') return s.meta.minutes + 20;
+    return s.meta.reps*(s.meta.hardMin+s.meta.restMin) + 15;
+  }
+  return Math.round(s.km*6.5) + 10;
+}
+
+function computeDayPlan(week){
+  const prefs = getDayPrefs(week.weekNum);
+  const days = [];
+  for(let i=0;i<7;i++){
+    days.push({idx:i, date:new Date(week.weekStart.getTime()+i*DAY), status:prefs[i].status, duration:prefs[i].duration});
+  }
+  const trainable = days.filter(d=>d.status!=='unavailable');
+  const order = [...week.sessions].sort((a,b)=>estimateMinutes(b)-estimateMinutes(a));
+  const used = new Set();
+  const assignment = {};
+  order.forEach(s=>{
+    const need = estimateMinutes(s);
+    const candidates = trainable.filter(d=>!used.has(d.idx));
+    if(!candidates.length) return;
+    candidates.sort((a,b)=>{
+      const loadA = a.status==='other_sport' ? (a.duration||30) : 0;
+      const loadB = b.status==='other_sport' ? (b.duration||30) : 0;
+      if(loadA!==loadB) return loadA-loadB;
+      const fitA = (a.status==='available' && a.duration) ? (a.duration>=need?0:1) : 0;
+      const fitB = (b.status==='available' && b.duration) ? (b.duration>=need?0:1) : 0;
+      return fitA-fitB;
+    });
+    assignment[s.idx] = candidates[0].idx;
+    used.add(candidates[0].idx);
+  });
+
+  const leftover = trainable.filter(d=>!used.has(d.idx));
+  const assignedIdxs = Object.keys(assignment);
+  const hardIdx = assignment[0] !== undefined ? assignment[0] : (assignedIdxs.length ? assignment[assignedIdxs[0]] : null);
+
+  let restIdx = null, restReason = '';
+  if(leftover.length){
+    leftover.sort((a,b)=>{
+      const da = hardIdx==null ? 0 : (a.idx-hardIdx+7)%7;
+      const db = hardIdx==null ? 0 : (b.idx-hardIdx+7)%7;
+      if(da!==db) return da-db;
+      const loadA = a.status==='other_sport' ? (a.duration||30) : 0;
+      const loadB = b.status==='other_sport' ? (b.duration||30) : 0;
+      return loadA-loadB;
+    });
+    restIdx = leftover[0].idx;
+    restReason = (hardIdx!=null && leftover[0].idx!==hardIdx)
+      ? 'zo herstel je na je zwaarste training van de week'
+      : 'er staat verder niets gepland op die dag';
+  } else {
+    const forced = days.find(d=>d.status==='unavailable');
+    if(forced){ restIdx = forced.idx; restReason = 'je kunt die dag toch niet trainen'; }
+  }
+  return {days, assignment, restIdx, restReason};
+}
+
+function dayLabel(date, opts){
+  return date.toLocaleDateString('nl-NL', opts || {weekday:'long', day:'numeric', month:'short'});
+}
+
+function renderDayPrefs(week){
+  const plan = computeDayPlan(week);
+  const wrap = document.getElementById('dayPrefs');
+  wrap.innerHTML = plan.days.map(d=>{
+    const showDuration = d.status !== 'unavailable';
+    return `
+    <div class="dayrow ${d.status}">
+      <span class="dname">${dayLabel(d.date)}</span>
+      <select class="dp-status" data-day="${d.idx}">
+        <option value="available" ${d.status==='available'?'selected':''}>Kan trainen</option>
+        <option value="unavailable" ${d.status==='unavailable'?'selected':''}>Kan niet trainen</option>
+        <option value="other_sport" ${d.status==='other_sport'?'selected':''}>Andere sport</option>
+      </select>
+      <input type="number" class="dp-duration" data-day="${d.idx}" min="0" step="5" placeholder="min" value="${d.duration ?? ''}" ${showDuration?'':'disabled'}>
+    </div>`;
+  }).join('');
+
+  wrap.querySelectorAll('.dp-status').forEach(sel=>{
+    sel.onchange = (e)=>{
+      setDayPref(week.weekNum, +e.target.dataset.day, {status: e.target.value});
+      renderWeekPanel();
+    };
+  });
+  wrap.querySelectorAll('.dp-duration').forEach(inp=>{
+    inp.onchange = (e)=>{
+      const val = e.target.value ? parseInt(e.target.value, 10) : null;
+      setDayPref(week.weekNum, +e.target.dataset.day, {duration: val});
+      renderWeekPanel();
+    };
+  });
+
+  const advice = document.getElementById('restAdvice');
+  if(plan.restIdx != null){
+    const d = plan.days.find(x=>x.idx===plan.restIdx);
+    advice.innerHTML = `<b>Rustdag-advies:</b> ${dayLabel(d.date)} — ${plan.restReason}.`;
+  } else {
+    advice.innerHTML = `<b>Rustdag-advies:</b> vul hierboven in welke dagen je kan of niet kan trainen om een advies te krijgen.`;
+  }
+  return plan;
+}
+
+function sessionPaceLabel(s, p){
+  if(!p) return 'Voeg een tijd toe bij "Recente tijden" om je tempo te zien';
+  if(s.type==='long'){
+    if(s.meta.kind==='race') return `Marathontempo: ${secToPace(p.goalMarathonSec/42.195)}`;
+    return `Tempo: ${secToPace(p.easyLow)} – ${secToPace(p.easyHigh)}`;
+  }
+  if(s.type==='easy'){
+    if(s.meta.kind==='recovery') return `Tempo: ${secToPace(p.easyHigh)} – ${secToPace(p.easyHigh+20)} (extra rustig)`;
+    return `Tempo: ${secToPace(p.easyLow)} – ${secToPace(p.easyHigh)}`;
+  }
+  if(s.meta.kind==='tempo') return `Tempo: ${secToPace(p.thresholdPace)}`;
+  if(s.meta.kind==='interval') return `Tempo: zie blokken hieronder`;
+  return null;
+}
+
+function renderIntervalBlocks(s, p){
+  const hardPace = p ? secToPace(p.intervalPace) : '–';
+  const restPace = p ? `${secToPace(p.easyHigh)} – ${secToPace(p.easyHigh+20)}` : '–';
+  let chips = '';
+  for(let i=0;i<s.meta.reps;i++){
+    chips += `<span class="block hard">${s.meta.hardMin}′ hard</span><span class="block rest">${s.meta.restMin}′ rustig</span>`;
+  }
+  return `<div class="blocks"><span class="legend">Hard @ ${hardPace} · Rustig @ ${restPace}</span>${chips}</div>`;
+}
+
+// ---------- ADAPTIVE LOGIC ----------
+function recomputeAdjustment(plan, currentWeekIdx){
+  const recentWeeks = plan.slice(Math.max(0,currentWeekIdx-2), currentWeekIdx+1);
+  let missed=0, hard=0, easy=0, completed=0;
+  recentWeeks.forEach(w=>{
+    w.sessions.forEach(s=>{
+      if(s.type==='easy') return;
+      const log = state.logs[sessionKey(w.weekNum,s.idx)];
+      if(!log) return;
+      if(log.skipped) missed++;
+      else{
+        completed++;
+        if(log.feel==='hard') hard++;
+        if(log.feel==='easy') easy++;
+      }
+    });
+  });
+
+  let message = null, positive=false;
+  let factor = state.adjustmentFactor || 1.0;
+  if(missed>=2 || hard>=2){
+    factor = Math.max(0.7, factor-0.1);
+    message = 'Je hebt de laatste tijd een aantal lange lopen of pittige trainingen gemist of ze voelden zwaar. Ik heb het schema iets voorzichtiger gemaakt om blessures te voorkomen.';
+  } else if(completed>=3 && missed===0 && easy>=Math.ceil(completed*0.6)){
+    factor = Math.min(1.15, factor+0.05);
+    message = 'Je pakt de trainingen goed op — makkelijker dan verwacht en niets overgeslagen. Ik heb het schema licht opgeschroefd.';
+    positive = true;
+  }
+  if(factor !== state.adjustmentFactor){
+    state.adjustmentFactor = factor;
+    save();
+    return {message, positive};
+  }
+  return {message:null, positive:false};
+}
+
+// ---------- RENDER ----------
+let currentPlan = [];
+let bannerMsg = null;
+
+function findCurrentWeekIdx(plan){
+  const today = new Date(); today.setHours(0,0,0,0);
+  for(let i=0;i<plan.length;i++){
+    const start = plan[i].weekStart;
+    const end = new Date(start.getTime()+7*DAY);
+    if(today>=start && today<end) return i;
+  }
+  return today < plan[0].weekStart ? 0 : plan.length-1;
+}
+
+function weekStatus(w){
+  let anyLog=false, anySkip=false, allDone=true;
+  w.sessions.forEach(s=>{
+    const log = state.logs[sessionKey(w.weekNum,s.idx)];
+    if(log){ anyLog=true; if(log.skipped) anySkip=true; }
+    else allDone=false;
+  });
+  if(!anyLog) return 'future';
+  if(anySkip) return 'adjusted';
+  if(allDone) return 'done';
+  return 'partial';
+}
+
+function render(){
+  const today = new Date(); today.setHours(0,0,0,0);
+  const raceDate = new Date(state.raceDate+'T00:00:00');
+  document.getElementById('daysLeft').textContent = Math.max(0, daysBetween(today, raceDate));
+  document.getElementById('raceDateInput').value = state.raceDate;
+  document.getElementById('startDateInput').value = state.startDate;
+
+  currentPlan = generatePlan();
+  const curIdx = findCurrentWeekIdx(currentPlan);
+  const adj = recomputeAdjustment(currentPlan, curIdx);
+  if(adj.message) bannerMsg = adj;
+
+  // timeline
+  const tl = document.getElementById('timeline');
+  tl.innerHTML = '';
+  currentPlan.forEach((w,i)=>{
+    const post = document.createElement('div');
+    post.className = 'post';
+    const st = weekStatus(w);
+    if(i===curIdx) post.classList.add('current');
+    else if(st==='done') post.classList.add('done');
+    else if(st==='adjusted') post.classList.add('adjusted');
+    post.title = `Week ${w.weekNum} — ${w.lr} km lange duurloop`;
+    post.innerHTML = (w.isRaceWeek ? '<div class="flag">🏁</div>' : '') + '<div class="dot"></div>' + `<div class="wk">${w.weekNum}</div>`;
+    post.onclick = ()=>{ selectedWeekIdx = i; renderWeekPanel(); };
+    tl.appendChild(post);
+  });
+
+  // banner
+  const bz = document.getElementById('bannerZone');
+  bz.innerHTML = '';
+  if(bannerMsg && bannerMsg.message){
+    const div = document.createElement('div');
+    div.className = 'banner' + (bannerMsg.positive?' positive':'');
+    div.innerHTML = `<b>${bannerMsg.positive?'Schema aangepast — omhoog':'Schema aangepast — rustiger'}</b>${bannerMsg.message}`;
+    bz.appendChild(div);
+  }
+
+  if(selectedWeekIdx===null) selectedWeekIdx = curIdx;
+  renderWeekPanel();
+  renderPaces();
+  renderRaces();
+  renderHistory();
+}
+
+let selectedWeekIdx = null;
+
+function renderWeekPanel(){
+  const w = currentPlan[selectedWeekIdx];
+  document.getElementById('weekTitle').textContent = `Week ${w.weekNum} van ${currentPlan.length}`;
+  const phaseLabel = w.isRaceWeek ? 'Racedag' : w.isTaper ? 'Taper — rustig afbouwen' : w.isCutback ? 'Hersteldweek — bewust wat minder' : 'Opbouwweek';
+  document.getElementById('weekPhase').textContent = `${phaseLabel} · ${fmtDate(w.weekStart)} · ${w.runDays} hardloopdagen`;
+
+  const dayPlan = renderDayPrefs(w);
+  const p = calcPaces();
+
+  const wrap = document.getElementById('sessions');
+  wrap.innerHTML = '';
+  w.sessions.forEach(s=>{
+    const key = sessionKey(w.weekNum, s.idx);
+    const log = state.logs[key];
+    const row = document.createElement('div');
+    row.className = 'session';
+    let statusHtml, actionHtml;
+    if(log && log.skipped){
+      statusHtml = `<div class="session-status skipped">Overgeslagen</div>`;
+      actionHtml = `<button class="btn secondary small" data-key="${key}" data-week="${w.weekNum}" data-idx="${s.idx}">Alsnog loggen</button>`;
+    } else if(log){
+      statusHtml = `<div class="session-status done">${log.distance} km${log.minutes?` · ${log.minutes} min`:''}</div>`;
+      actionHtml = `<button class="btn secondary small" data-key="${key}" data-week="${w.weekNum}" data-idx="${s.idx}">Bewerken</button>`;
+    } else {
+      statusHtml = `<div class="session-status">Nog niet gelogd</div>`;
+      actionHtml = `<button class="btn small" data-key="${key}" data-week="${w.weekNum}" data-idx="${s.idx}">Loggen</button>`;
+    }
+    const dayIdx = dayPlan.assignment[s.idx];
+    const dayBadge = dayIdx!=null ? `<span class="day-badge">${dayLabel(dayPlan.days.find(d=>d.idx===dayIdx).date, {weekday:'short', day:'numeric', month:'short'})}</span>` : '';
+    const paceLabel = sessionPaceLabel(s, p);
+    const paceHtml = paceLabel ? `<div class="session-pace">${paceLabel}</div>` : '';
+    const blocksHtml = (s.type==='quality' && s.meta.kind==='interval') ? renderIntervalBlocks(s, p) : '';
+    row.innerHTML = `
+      <div class="session-main">
+        <span class="session-type ${s.type}">${s.type==='long'?'Lang':s.type==='quality'?'Kwaliteit':'Rustig'}</span>${dayBadge}
+        <div class="session-name">${s.label} — ${Math.round(s.km*10)/10} km</div>
+        <div class="session-detail">${s.detail}</div>
+        ${paceHtml}
+        ${blocksHtml}
+      </div>
+      ${statusHtml}
+    `;
+    const actionDiv = document.createElement('div');
+    actionDiv.innerHTML = actionHtml;
+    const btn = actionDiv.firstChild;
+    btn.onclick = ()=> openLogModal(w, s);
+    row.appendChild(btn);
+    wrap.appendChild(row);
+  });
+}
+
+function renderPaces(){
+  const p = calcPaces();
+  const el = document.getElementById('paces');
+  const pred = document.getElementById('prediction');
+  if(!p){
+    el.innerHTML = '<div class="empty-state">Voeg een tijd toe om je tempo\'s te berekenen.</div>';
+    pred.innerHTML = '';
+    return;
+  }
+  el.innerHTML = `
+    <div class="pace-row"><span class="label">Rustig</span><span class="val">${secToPace(p.easyLow)} – ${secToPace(p.easyHigh)}</span></div>
+    <div class="pace-row"><span class="label">Marathontempo (doel)</span><span class="val">${secToPace(p.goalMarathonSec/42.195)}</span></div>
+    <div class="pace-row"><span class="label">Tempo / drempel</span><span class="val">${secToPace(p.thresholdPace)}</span></div>
+    <div class="pace-row"><span class="label">Interval</span><span class="val">${secToPace(p.intervalPace)}</span></div>
+  `;
+  pred.innerHTML = `Op basis van je vorm nu: potentiële marathontijd rond <strong>${secToTime(p.avgMarathonSec)}</strong>.
+    Omdat je nog nauwelijks een loopbasis hebt, is <strong>${secToTime(p.goalMarathonSec)}</strong> een realistischer doel voor over ${document.getElementById('daysLeft').textContent} dagen — de tempo's hierboven gaan van dat doel uit.`;
+}
+
+function renderRaces(){
+  const el = document.getElementById('racesList');
+  const sorted = [...state.races].sort((a,b)=> new Date(b.date)-new Date(a.date));
+  el.innerHTML = sorted.map(r=>`
+    <div class="race-item">
+      <span>${r.distance} km — ${secToTime(r.timeSec)}</span>
+      <span class="rd">${fmtDate(r.date)}</span>
+    </div>
+  `).join('') || '<div class="empty-state">Nog geen tijden</div>';
+}
+
+function renderHistory(){
+  const rows = [];
+  currentPlan.forEach(w=>{
+    w.sessions.forEach(s=>{
+      const key = sessionKey(w.weekNum,s.idx);
+      const log = state.logs[key];
+      if(!log) return;
+      rows.push({week:w.weekNum, date:log.date, label:s.label, planned:s.km, log});
+    });
+  });
+  rows.sort((a,b)=> new Date(b.date)-new Date(a.date));
+  const wrap = document.getElementById('historyWrap');
+  if(rows.length===0){
+    wrap.innerHTML = '<div class="empty-state">Nog geen trainingen gelogd. Begin bij Week 1 hierboven.</div>';
+    return;
+  }
+  wrap.innerHTML = `<table>
+    <tr><th>Datum</th><th>Training</th><th>Gepland</th><th>Gedaan</th><th>Gevoel</th></tr>
+    ${rows.map(r=>`
+      <tr>
+        <td>${fmtDate(r.date)}</td>
+        <td>${r.label}</td>
+        <td>${Math.round(r.planned*10)/10} km</td>
+        <td>${r.log.skipped ? '—' : `${r.log.distance} km`}</td>
+        <td>${r.log.skipped ? 'Overgeslagen' : (r.log.feel==='easy'?'Makkelijk':r.log.feel==='hard'?'Zwaar':'Zoals gepland')}</td>
+      </tr>
+    `).join('')}
+  </table>`;
+}
+
+// ---------- MODAL: LOG SESSION ----------
+let activeSession = null;
+function openLogModal(week, session){
+  activeSession = {week, session};
+  const key = sessionKey(week.weekNum, session.idx);
+  const log = state.logs[key];
+  document.getElementById('logModalTitle').textContent = `${session.label} — Week ${week.weekNum}`;
+  document.getElementById('logDistance').value = log ? log.distance : session.km;
+  document.getElementById('logMinutes').value = log && log.minutes ? log.minutes : '';
+  document.querySelectorAll('input[name="feel"]').forEach(r=> r.checked = (log ? log.feel : 'right')===r.value);
+  document.getElementById('logOverlay').hidden = false;
+}
+document.getElementById('saveLogBtn').onclick = ()=>{
+  const {week, session} = activeSession;
+  const key = sessionKey(week.weekNum, session.idx);
+  const distance = parseFloat(document.getElementById('logDistance').value) || session.km;
+  const minutes = parseFloat(document.getElementById('logMinutes').value) || null;
+  const feel = document.querySelector('input[name="feel"]:checked').value;
+  state.logs[key] = {distance, minutes, feel, skipped:false, date: new Date().toISOString().slice(0,10)};
+  save();
+  document.getElementById('logOverlay').hidden = true;
+  render();
+};
+document.getElementById('skipBtn').onclick = ()=>{
+  const {week, session} = activeSession;
+  const key = sessionKey(week.weekNum, session.idx);
+  state.logs[key] = {distance:0, minutes:null, feel:null, skipped:true, date: new Date().toISOString().slice(0,10)};
+  save();
+  document.getElementById('logOverlay').hidden = true;
+  render();
+};
+document.getElementById('logOverlay').addEventListener('click', e=>{ if(e.target.id==='logOverlay') e.currentTarget.hidden = true; });
+
+// ---------- MODAL: ADD RACE ----------
+document.getElementById('addRaceBtn').onclick = ()=>{
+  document.getElementById('raceDate').value = new Date().toISOString().slice(0,10);
+  document.getElementById('raceTime').value = '';
+  document.getElementById('raceOverlay').hidden = false;
+};
+document.getElementById('cancelRaceBtn').onclick = ()=>{ document.getElementById('raceOverlay').hidden = true; };
+document.getElementById('raceOverlay').addEventListener('click', e=>{ if(e.target.id==='raceOverlay') e.currentTarget.hidden = true; });
+document.getElementById('saveRaceBtn').onclick = ()=>{
+  const distance = parseFloat(document.getElementById('raceDistance').value);
+  const date = document.getElementById('raceDate').value;
+  const timeSec = parseTimeToSec(document.getElementById('raceTime').value);
+  if(!distance || !date || !timeSec){ alert('Vul afstand, datum en tijd correct in (tijd als mm:ss).'); return; }
+  state.races.push({id:'r'+state.nextRaceId, distance, date, timeSec});
+  state.nextRaceId++;
+  save();
+  document.getElementById('raceOverlay').hidden = true;
+  render();
+};
+
+document.getElementById('raceDateInput').onchange = (e)=>{
+  state.raceDate = e.target.value;
+  save();
+  render();
+};
+document.getElementById('startDateInput').onchange = (e)=>{
+  state.startDate = e.target.value;
+  save();
+  render();
+};
+
+// ---------- STORAGE ----------
+// Werkt zowel binnen Claude (window.storage) als op een eigen hosting (localStorage).
+const hasClaudeStorage = typeof window.storage !== 'undefined';
+
+async function save(){
+  try{
+    if(hasClaudeStorage){
+      await window.storage.set(STORAGE_KEY, JSON.stringify(state), false);
+    } else {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+  }catch(err){
+    console.error('Opslaan mislukt', err);
+  }
+}
+async function load(){
+  try{
+    if(hasClaudeStorage){
+      const res = await window.storage.get(STORAGE_KEY, false);
+      if(res && res.value){ state = JSON.parse(res.value); if(!state.dayPrefs) state.dayPrefs = {}; return; }
+    } else {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(raw){ state = JSON.parse(raw); if(!state.dayPrefs) state.dayPrefs = {}; return; }
+    }
+  }catch(err){
+    // nog geen opgeslagen data
+  }
+  state = defaultState();
+  await save();
+}
+
+(async function init(){
+  await load();
+  render();
+})();
+</script>
+</body>
+</html>

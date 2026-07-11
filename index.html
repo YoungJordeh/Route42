@@ -311,7 +311,7 @@ const DAY = 86400000;
 function defaultState(){
   return {
     startDate: '2026-07-12',
-    raceDate: '2026-10-11',
+    raceDate: '2026-10-18',
     races: [
       {id:'r1', distance:5,   date:'2026-06-07', timeSec: 21*60+39},
       {id:'r2', distance:10,  date:'2026-05-13', timeSec: 46*60+22},
@@ -354,8 +354,13 @@ function fmtDate(d){
 function calcPaces(){
   const races = state.races;
   if(races.length===0) return null;
+  
   const marathonPredictions = races.map(r => riegel(r.timeSec, r.distance, 42.195));
-  const avgMarathonSec = marathonPredictions.reduce((a,b)=>a+b,0)/marathonPredictions.length;
+  const baseAvgMarathonSec = marathonPredictions.reduce((a,b)=>a+b,0)/marathonPredictions.length;
+  
+  const factor = state.adjustmentFactor || 1.0;
+  const avgMarathonSec = baseAvgMarathonSec * (1 + (1 - factor) * 0.25); 
+  
   const mPaceSec = avgMarathonSec/42.195;
 
   const fiveKPredictions = races.map(r => riegel(r.timeSec, r.distance, 5)/5);
@@ -672,12 +677,23 @@ function render(){
     const post = document.createElement('div');
     post.className = 'post';
     const st = weekStatus(w);
-    if(i===curIdx) post.classList.add('current');
+    const activeIdx = selectedWeekIdx !== null ? selectedWeekIdx : curIdx;
+
+    if(i===activeIdx) post.classList.add('current');
     else if(st==='done') post.classList.add('done');
     else if(st==='adjusted') post.classList.add('adjusted');
+    
     post.title = `Week ${w.weekNum} — ${w.lr} km lange duurloop`;
     post.innerHTML = (w.isRaceWeek ? '<div class="flag">🏁</div>' : '') + '<div class="dot"></div>' + `<div class="wk">${w.weekNum}</div>`;
-    post.onclick = ()=>{ selectedWeekIdx = i; renderWeekPanel(); };
+    
+    post.onclick = ()=>{ 
+      selectedWeekIdx = i; 
+      document.querySelectorAll('.timeline .post').forEach((p, idx) => {
+        if (idx === selectedWeekIdx) p.classList.add('current');
+        else p.classList.remove('current');
+      });
+      renderWeekPanel(); 
+    };
     tl.appendChild(post);
   });
 

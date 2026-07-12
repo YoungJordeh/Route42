@@ -38,12 +38,12 @@
   .fullscreen-view {
     position: fixed; inset: 0; background: var(--bg); z-index: 1000;
     overflow-y: auto; transition: background-color 0.3s ease;
-    padding: 20px; /* Zorgt voor veilige ademruimte op mobiel */
+    padding: 20px;
   }
   .welcome-card {
     background: var(--panel); border: 1px solid var(--border); border-radius: 16px;
     padding: 36px; width: 100%; max-width: 500px; 
-    margin: 5vh auto; /* Horizontaal perfect in het midden, en ietsjes vanaf de bovenkant */
+    margin: 5vh auto;
     box-shadow: 0 10px 30px rgba(0,0,0,0.3);
   }
 
@@ -91,7 +91,11 @@
   .post .wk{font-size:9px; color:var(--text-muted); margin-top:6px;}
   .post.current .wk{color:var(--gold); font-weight:600;}
   .flag{position:absolute; bottom: 22px; font-size:18px;}
-  .runner-icon{position:absolute; bottom:22px; font-size:24px; z-index:10; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.4));}
+  .runner-icon{
+      position:absolute; bottom:22px; font-size:24px; z-index:10; 
+      filter:drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+      transform: scaleX(-1);
+  }
 
   /* ---- GRID ---- */
   .grid{display:grid; grid-template-columns:1.5fr 1fr; gap:20px; align-items:start;}
@@ -227,8 +231,8 @@
   .action-group { display:flex; gap:6px; justify-content: flex-end; margin-top:6px; }
 
   /* ---- PROFILE & ZONES ---- */
-  .profile-row{display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;}
-  .profile-row label{font-size:13px; color:var(--text-muted); min-height: 24px; display:flex; align-items:center;}
+  .profile-row{display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:12px;}
+  .profile-row label{font-size:13px; color:var(--text-muted); display:block;}
   .profile-row input[type=text], .profile-row input[type=number], .profile-row select{
     width:100px; background:var(--bg); border:1px solid var(--border); border-radius:6px; color:var(--text);
     font-size:13px; padding:4px 8px; text-align:right;
@@ -325,7 +329,7 @@
   </div>
 
   <div id="onboardingForm" class="welcome-card" hidden>
-    <h2>Welkom bij Route42</h2>
+    <h2 style="color:var(--gold);">Welkom bij Route42</h2>
     <p class="subtitle" style="margin-bottom:20px;">Laten we je schema instellen. Vul hieronder je fysiologische gegevens in:</p>
     
     <div class="field">
@@ -372,13 +376,13 @@
       </select>
     </div>
     
-    <div class="grid" style="grid-template-columns:1fr 1fr; gap:10px;">
-       <div class="field">
-         <label title="Bepaalt de startafstand van je schema">Langste duurloop (afgelopen 4 weken, km)</label>
+    <div class="grid" style="grid-template-columns:1fr 1fr; gap:10px; align-items:flex-end;">
+       <div class="field" style="margin-bottom:0;">
+         <label title="Bepaalt de startafstand van je schema">Langste duurloop<br><span style="font-size:10px; font-weight:normal;">(4 wkn, km)</span></label>
          <input type="number" id="obLongestRun" placeholder="Bv. 10" min="0" max="42">
        </div>
-       <div class="field">
-         <label title="Helpt voor hersteladvies en AI coach">Andere intensieve sport (uur/week)</label>
+       <div class="field" style="margin-bottom:0;">
+         <label title="Helpt voor hersteladvies en AI coach">Andere intensieve sport<br><span style="font-size:10px; font-weight:normal;">(uur / week)</span></label>
          <select id="obOtherSport">
            <option value="0" selected>0 uur</option>
            <option value="1-3">1 - 3 uur</option>
@@ -388,7 +392,7 @@
        </div>
     </div>
 
-    <div class="field" style="margin-top:5px;">
+    <div class="field" style="margin-top:15px;">
       <label title="Hoeveel dagen per week wil je lopen?">Aantal hardloopdagen per week (min-max)</label>
       <div style="display:flex; gap:10px;">
          <input type="number" id="obMinDays" value="3" min="1" max="7">
@@ -542,17 +546,17 @@
             </select>
           </div>
           <div class="profile-row">
-            <label title="Bepaalt startafstand">Langste duurloop (afgelopen 4 wk)</label>
-            <div style="display:flex; align-items:center; gap:4px;"><input type="number" id="userLongestRun" placeholder="Bv. 12" min="0" max="42" style="width:60px;"> <span style="font-size:12px; color:var(--text-muted);">km</span></div>
+             <label title="Bepaalt startafstand">Langste duurloop<br><span style="font-size:10px; font-weight:normal;">(4 wkn)</span></label>
+             <div style="display:flex; align-items:center; gap:4px;"><input type="number" id="userLongestRun" placeholder="Bv. 12" min="0" max="42" style="width:60px;"> <span style="font-size:12px; color:var(--text-muted);">km</span></div>
           </div>
           <div class="profile-row">
-            <label title="Voor herstel-logica">Andere intensieve sport</label>
-            <select id="userOtherSport" style="width:140px;">
-              <option value="0">0 uur/week</option>
-              <option value="1-3">1 - 3 uur/week</option>
-              <option value="3-6">3 - 6 uur/week</option>
-              <option value=">6">&gt; 6 uur/week</option>
-            </select>
+             <label title="Voor herstel-logica">Andere sport<br><span style="font-size:10px; font-weight:normal;">(uur / week)</span></label>
+             <select id="userOtherSport" style="width:100px;">
+               <option value="0">0 uur</option>
+               <option value="1-3">1 - 3 uur</option>
+               <option value="3-6">3 - 6 uur</option>
+               <option value=">6">&gt; 6 uur</option>
+             </select>
           </div>
           
           <div class="profile-row" style="margin-top:16px;">
@@ -582,7 +586,7 @@
           </div>
 
           <div class="profile-row" style="margin-top:10px;">
-            <label title="Kies een unieke accentkleur voor de web-app">App Kleurenthema</label>
+            <label title="Kies een unieke accentkleur voor de web-app">Kleurenthema app</label>
             <div class="color-picker-wrap">
                 <input type="color" id="themePicker" value="#d4a72c" title="Kies een kleur">
                 <button class="btn secondary small" id="resetThemeBtn" style="padding: 2px 6px;" title="Herstel standaardkleur">↺</button>
@@ -721,6 +725,7 @@ const DAY = 86400000;
 let allData = {};
 let currentUsername = 'Standaard';
 let state = null; 
+let activeSession = null;
 
 function defaultUserState(){
   return {
@@ -732,9 +737,9 @@ function defaultUserState(){
     maxHrOverride: null,
     minDays: 3,
     maxDays: 4,
-    pastVolume: 'med', // Nieuwe parameter
-    longestRun: null,  // Nieuwe parameter
-    otherSportHours: '0', // Nieuwe parameter
+    pastVolume: 'med',
+    longestRun: null, 
+    otherSportHours: '0', 
     races: [], 
     logs: {},
     extras: {},
@@ -982,7 +987,6 @@ function calcPaces(){
   if(!races || races.length===0) {
     let best10kPace = Infinity;
     
-    // Kijk in alle normale trainingen voor de beste richttijd
     for(const key in state.logs){
        const l = state.logs[key];
        if(l.skipped || !l.distance || !l.timeSec) continue;
@@ -994,7 +998,6 @@ function calcPaces(){
        if(est10k < best10kPace) best10kPace = est10k;
     }
     
-    // Kijk ook in de extra trainingen
     if(state.extras) {
         for(const week in state.extras) {
            state.extras[week].forEach(l => {
@@ -1009,9 +1012,8 @@ function calcPaces(){
         }
     }
 
-    if(best10kPace === Infinity) return null; // Geen races én geen bruikbare logs
+    if(best10kPace === Infinity) return null; 
 
-    // Maak een virtuele race aan op basis van de beste training
     races = [{ distance: 10, timeSec: best10kPace * 10 }];
     usingLogs = true;
   }
@@ -1134,17 +1136,16 @@ function generatePlan(skipBioLoop = false){
   const totalWeeks = Math.max(6, Math.ceil(totalDays/7));
   const taperWeeks = 2;
   
-  // Custom fysiologische opbouw op basis van Onboarding
   const startLR = state.longestRun && state.longestRun > 0 ? state.longestRun : 6;
   
   let absPeakLR = 28;
-  if(state.pastVolume === 'low') absPeakLR = 25; // Beschermt beginners tegen overbelasting
-  else if(state.pastVolume === 'med') absPeakLR = 30; // Standaard veilige opbouw
-  else if(state.pastVolume === 'high') absPeakLR = 32; // Perfect voor gevorderden
-  else if(state.pastVolume === 'elite') absPeakLR = 35; // Voor extreme km-vreters
+  if(state.pastVolume === 'low') absPeakLR = 25;
+  else if(state.pastVolume === 'med') absPeakLR = 30;
+  else if(state.pastVolume === 'high') absPeakLR = 32;
+  else if(state.pastVolume === 'elite') absPeakLR = 35;
 
   const peakWeekIndex = totalWeeks - taperWeeks - 1;
-  const peakLR = Math.min(absPeakLR, startLR + (peakWeekIndex * 2.5)); // Max 2.5km opbouw per week
+  const peakLR = Math.min(absPeakLR, startLR + (peakWeekIndex * 2.5));
   
   if(!state.userExponent) updateAdjustmentFactor();
   
@@ -1158,7 +1159,6 @@ function generatePlan(skipBioLoop = false){
   }
   vFactor = Math.max(0.75, Math.min(1.25, vFactor));
 
-  // Determine user day bounds
   const minD = state.minDays || 3;
   const maxD = state.maxDays || 4;
 
@@ -1170,7 +1170,6 @@ function generatePlan(skipBioLoop = false){
     const isCutback = !isTaper && !isRaceWeek && (weekNum % 4 === 0);
     const weekStart = new Date(startDate.getTime() + i*7*DAY);
 
-    // Calculate long run
     let lr;
     if(isRaceWeek){
       lr = 42.195;
@@ -1190,13 +1189,11 @@ function generatePlan(skipBioLoop = false){
       if(lr > 34) lr = 34; 
     }
 
-    // Dynamic Run Days logic
     let progressRatio = peakWeekIndex > 0 ? (i / peakWeekIndex) : 1;
     let baseDays = minD + Math.round((maxD - minD) * progressRatio);
     
     if(isCutback || isTaper) baseDays = minD;
     
-    // Adapt to user fatigue (vFactor)
     if(vFactor < 0.95) baseDays = Math.max(minD, baseDays - 1);
     if(vFactor > 1.10) baseDays = Math.min(maxD, baseDays + 1);
 
@@ -1437,6 +1434,47 @@ function renderIntervalBlocks(s, p){
     chips += `<span class="block hard">${s.meta.hardMin}′ hard</span><span class="block rest">${s.meta.restMin}′ rustig</span>`;
   }
   return `<div class="blocks"><span class="legend">Hard @ ${hardPace}/km (${z5.low}-${z5.high} BPM) · Rustig @ ${restPace}/km (${z2.low}-${z2.high} BPM)</span>${chips}</div>`;
+}
+
+function openLogModal(week, session) {
+  activeSession = { week, session, isExtra: false, isSport: false };
+  const key = sessionKey(week.weekNum, session.idx);
+  const log = state.logs[key] || {};
+  
+  document.getElementById('logModalTitle').textContent = `${session.label} — Week ${week.weekNum}`;
+  document.getElementById('sportNameWrap').hidden = true;
+  document.getElementById('distanceWrap').hidden = false;
+  document.getElementById('logInputTypeWrap').hidden = false;
+  
+  document.getElementById('logDistance').value = log.distance || session.km || '';
+  document.getElementById('logInputType').value = 'time';
+  document.getElementById('logTimeLabel').textContent = 'Tijd (mm:ss of h:mm:ss, optioneel)';
+  document.getElementById('logTime').value = log.timeSec ? secToTime(log.timeSec) : '';
+  document.getElementById('logHr').value = log.hr || '';
+  
+  let dStr = log.date;
+  if(!dStr) {
+      const dayPlan = computeDayPlan(week);
+      const dayIdx = dayPlan.assignment[session.idx];
+      if(dayIdx != null) {
+          const dt = dayPlan.days.find(d=>d.idx===dayIdx).date;
+          dStr = dt.toISOString().slice(0, 10);
+      } else {
+          dStr = new Date().toISOString().slice(0, 10);
+      }
+  }
+  document.getElementById('logDate').value = dStr;
+  
+  if(log.feel) {
+      const feelInput = document.querySelector(`input[name="feel"][value="${log.feel}"]`);
+      if(feelInput) feelInput.checked = true;
+  } else {
+      document.querySelector(`input[name="feel"][value="right"]`).checked = true;
+  }
+  
+  document.getElementById('extraWarning').hidden = true;
+  document.getElementById('skipBtn').hidden = false;
+  document.getElementById('logOverlay').hidden = false;
 }
 
 let currentPlan = [];
@@ -1845,13 +1883,16 @@ function renderPaces(){
   `;
   
   if(topWrap) {
+      const tooltipReal = "Je verwachte eindtijd.\n\nBerekend o.b.v. je basissnelheid, waarbij we het 'verval' op de lange afstand continu bijsturen a.d.h.v. hoe zwaar of makkelijk je recente trainingen voelden.";
+      const tooltipOpt = "Je fysiologische limiet.\n\nDit is de tijd die je zou kunnen lopen als je het perfecte uithoudingsvermogen van een topsporter had, gemeten vanaf je huidige 10K snelheid.";
+
       topWrap.innerHTML = `
-        <div style="background:var(--panel-alt); padding:6px 12px; border-radius:8px; border:1px solid var(--border); font-size:12px;">
-            <span style="color:var(--text-muted);">Realistische prognose:</span> 
+        <div style="background:var(--panel-alt); padding:6px 12px; border-radius:8px; border:1px solid var(--border); font-size:12px; display:flex; align-items:center;">
+            <span style="color:var(--text-muted);">Realistische prognose <span class="info-icon" data-tooltip="${tooltipReal}" style="margin-left:6px; margin-right:4px;">i</span>:</span> 
             <strong style="color:var(--gold); font-size:14px; font-family:'Oswald'; margin-left:4px;">${secToTime(p.currentMarathonSec)}</strong>
         </div>
-        <div style="background:var(--panel-alt); padding:6px 12px; border-radius:8px; border:1px solid var(--border); font-size:12px;">
-            <span style="color:var(--text-muted);">Optimaal (Top):</span> 
+        <div style="background:var(--panel-alt); padding:6px 12px; border-radius:8px; border:1px solid var(--border); font-size:12px; display:flex; align-items:center;">
+            <span style="color:var(--text-muted);">Optimaal (Top) <span class="info-icon" data-tooltip="${tooltipOpt}" style="margin-left:6px; margin-right:4px;">i</span>:</span> 
             <strong style="color:var(--gold); font-size:14px; font-family:'Oswald'; margin-left:4px;">${secToTime(p.eliteMarathonSec)}</strong>
         </div>
       `;
@@ -2000,12 +2041,10 @@ function setupEventListeners() {
         
         const errorEl = document.getElementById('obErrorMsg');
         
-        // Reset alle randen naar de standaardkleur
         [nameInput, genderInput, ageInput, pVolInput].forEach(el => el.style.borderColor = 'var(--border)');
         
         let hasError = false;
         
-        // Controleer of alle verplichte velden zijn ingevuld, zo niet: maak ze rood
         if(!newName) { nameInput.style.borderColor = 'var(--rust)'; hasError = true; }
         if(!gender) { genderInput.style.borderColor = 'var(--rust)'; hasError = true; }
         if(!age) { ageInput.style.borderColor = 'var(--rust)'; hasError = true; }

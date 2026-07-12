@@ -348,7 +348,7 @@
 
     <p style="font-size:12px; color:var(--text-muted); margin:15px 0;">Referentietijden (zoals je recente 5K of 10K tijd) kun je zometeen in het dashboard toevoegen voor een nauwkeurigere pacing.</p>
 
-    <button class="btn full" id="startAppBtn" style="font-size:16px;">Start Mijn Schema</button>
+    <button class="btn full" id="startAppBtn" style="font-size:16px;">Start</button>
   </div>
 </div>
 
@@ -491,6 +491,7 @@
   <footer>Route42 · richtlijn op basis van je eigen tijden, geen medisch advies — bouw rustig op en luister naar je lijf.</footer>
 </div>
 
+<!-- Modal: Loggen (Normaal & Extra) -->
 <div class="overlay" id="logOverlay" hidden>
   <div class="modal">
     <h3 id="logModalTitle">Training loggen</h3>
@@ -527,6 +528,7 @@
   </div>
 </div>
 
+<!-- Modal: Referentietijd toevoegen/bewerken -->
 <div class="overlay" id="raceOverlay" hidden>
   <div class="modal">
     <h3 id="raceModalTitle">Referentietijd</h3>
@@ -976,7 +978,6 @@ function generatePlan(skipBioLoop = false){
     
     if(isCutback || isTaper) baseDays = minD;
     
-    // Adapt to user fatigue (vFactor)
     if(vFactor < 0.95) baseDays = Math.max(minD, baseDays - 1);
     if(vFactor > 1.10) baseDays = Math.min(maxD, baseDays + 1);
 
@@ -1091,7 +1092,7 @@ function computeDayPlan(week){
   unassigned.sort((a,b)=>estimateMinutes(b)-estimateMinutes(a));
   const trainable = days.filter(d=>d.status!=='unavailable');
   
-  let hardIdx = null; // Track day of hardest session for rest day logic
+  let hardIdx = null; 
 
   unassigned.forEach(s=>{
     const need = estimateMinutes(s);
@@ -1116,26 +1117,22 @@ function computeDayPlan(week){
     
     assignment[s.idx] = candidates[0].idx;
     used.add(candidates[0].idx);
-    if(s.idx === 0) hardIdx = candidates[0].idx; // Langste/zwaarste
+    if(s.idx === 0) hardIdx = candidates[0].idx; 
   });
 
   const leftover = trainable.filter(d=>!used.has(d.idx));
   let restIdx = null, restReason = '';
   if(leftover.length){
-    // Slim restday advies algoritme
     leftover.sort((a,b)=>{
-      // 1. Dagen zonder 'andere sport' krijgen ABSOLUTE prioriteit voor rust
       const aHasSport = a.status === 'other_sport';
       const bHasSport = b.status === 'other_sport';
       if (aHasSport && !bHasSport) return 1;  
       if (!aHasSport && bHasSport) return -1; 
       
-      // 2. Afstand tot de langste training
       const da = hardIdx==null ? 0 : (a.idx-hardIdx+7)%7;
       const db = hardIdx==null ? 0 : (b.idx-hardIdx+7)%7;
       if(da!==db) return da-db;
       
-      // 3. Als we alleen sportdagen over hebben, pak de lichtste
       const loadA = aHasSport ? (a.duration||30) : 0;
       const loadB = bHasSport ? (b.duration||30) : 0;
       return loadA-loadB;
@@ -1640,52 +1637,61 @@ function showOnboardingForm() {
 function setupEventListeners() {
   
   // -- ONBOARDING & WELCOME --
-  document.getElementById('showNewProfileBtn').onclick = () => {
-    document.getElementById('obName').value = '';
-    showOnboardingForm();
-  };
+  const showNewProfileBtn = document.getElementById('showNewProfileBtn');
+  if(showNewProfileBtn) {
+      showNewProfileBtn.onclick = () => {
+        document.getElementById('obName').value = '';
+        showOnboardingForm();
+      };
+  }
 
-  document.getElementById('startAppBtn').onclick = () => {
-    const newName = document.getElementById('obName').value.trim();
-    if(!newName) {
-       alert("Vul alsjeblieft een naam in om door te gaan.");
-       return;
-    }
+  const startAppBtn = document.getElementById('startAppBtn');
+  if(startAppBtn) {
+      startAppBtn.onclick = () => {
+        const newName = document.getElementById('obName').value.trim();
+        if(!newName) {
+           alert("Vul alsjeblieft een naam in om door te gaan.");
+           return;
+        }
 
-    if(allData[newName] && Object.keys(allData[newName].logs).length > 0) {
-       if(!confirm("Dit profiel bestaat al. Wil je hiermee verder gaan en de gegevens overschrijven?")) return;
-    }
+        if(allData[newName] && Object.keys(allData[newName].logs).length > 0) {
+           if(!confirm("Dit profiel bestaat al. Wil je hiermee verder gaan en de gegevens overschrijven?")) return;
+        }
 
-    if (!allData[newName]) {
-        allData[newName] = defaultUserState();
-    }
-    state = allData[newName];
-    currentUsername = newName;
+        if (!allData[newName]) {
+            allData[newName] = defaultUserState();
+        }
+        state = allData[newName];
+        currentUsername = newName;
 
-    state.gender = document.getElementById('obGender').value;
-    state.age = parseInt(document.getElementById('obAge').value) || 30;
-    
-    const rHr = document.getElementById('obRestHr').value;
-    state.restHr = rHr ? parseInt(rHr) : null;
-    
-    const mHr = document.getElementById('obMaxHr').value;
-    state.maxHrOverride = mHr ? parseInt(mHr) : null;
+        state.gender = document.getElementById('obGender').value;
+        state.age = parseInt(document.getElementById('obAge').value) || 30;
+        
+        const rHr = document.getElementById('obRestHr').value;
+        state.restHr = rHr ? parseInt(rHr) : null;
+        
+        const mHr = document.getElementById('obMaxHr').value;
+        state.maxHrOverride = mHr ? parseInt(mHr) : null;
 
-    let minD = parseInt(document.getElementById('obMinDays').value) || 3;
-    let maxD = parseInt(document.getElementById('obMaxDays').value) || 4;
-    if(minD > maxD) maxD = minD;
-    state.minDays = Math.max(1, Math.min(7, minD));
-    state.maxDays = Math.max(1, Math.min(7, maxD));
+        let minD = parseInt(document.getElementById('obMinDays').value) || 3;
+        let maxD = parseInt(document.getElementById('obMaxDays').value) || 4;
+        if(minD > maxD) maxD = minD;
+        state.minDays = Math.max(1, Math.min(7, minD));
+        state.maxDays = Math.max(1, Math.min(7, maxD));
 
-    state.themeColor = document.getElementById('obTheme').value;
-    applyTheme(state.themeColor);
+        state.themeColor = document.getElementById('obTheme').value;
+        applyTheme(state.themeColor);
 
-    finishOnboarding();
-  };
+        finishOnboarding();
+      };
+  }
 
-  document.getElementById('switchProfileBtn').onclick = () => {
-     window.location.reload(); 
-  };
+  const switchProfileBtn = document.getElementById('switchProfileBtn');
+  if(switchProfileBtn) {
+      switchProfileBtn.onclick = () => {
+         window.location.reload(); 
+      };
+  }
 
 
   // -- SIDEBAR SETTINGS --
@@ -1835,7 +1841,8 @@ function setupEventListeners() {
     render();
   };
   
-  document.getElementById('aiCoachBtn').onclick = getAICoachAdvice;
+  const aiBtn = document.getElementById('aiCoachBtn');
+  if(aiBtn) aiBtn.onclick = getAICoachAdvice;
 }
 
 let activeSession = null;

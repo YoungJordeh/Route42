@@ -31,6 +31,9 @@
   h1,h2,h3,.num{font-family:'Oswald',sans-serif; margin:0;}
   .app{max-width:1100px; margin:0 auto; padding:24px 20px 60px;}
 
+  /* GEFORCEERD VERBERGEN VOOR CANVAS */
+  [hidden] { display: none !important; }
+
   /* ---- WELCOME SCREEN ---- */
   .fullscreen-view {
     position: fixed; inset: 0; background: var(--bg); z-index: 1000;
@@ -263,7 +266,6 @@
 
   /* ---- MODALS ---- */
   .overlay{position:fixed; inset:0; background:rgba(10,14,10,.6); display:flex; align-items:center; justify-content:center; z-index:50; padding:16px;}
-  .overlay[hidden]{display:none;}
   .modal{background:var(--panel-alt); border:1px solid var(--border); border-radius:16px; padding:24px; width:100%; max-width:420px; max-height:90vh; overflow-y:auto;}
   .modal h3{color:var(--text); font-size:18px; margin-bottom:16px; text-transform:none; letter-spacing:0;}
   .field{margin-bottom:14px;}
@@ -306,6 +308,7 @@
     <div class="field">
       <label>Je naam</label>
       <input type="text" id="obName" placeholder="Bv. Alex">
+      <div id="obErrorMsg" class="extra-warn" style="margin-top:8px;" hidden></div>
     </div>
     
     <div class="grid" style="grid-template-columns:1fr 1fr; gap:10px;">
@@ -352,6 +355,7 @@
   </div>
 </div>
 
+<!-- MAIN APPLICATION -->
 <div id="mainApp" class="app" hidden>
 
   <header class="hero">
@@ -532,6 +536,7 @@
 <div class="overlay" id="raceOverlay" hidden>
   <div class="modal">
     <h3 id="raceModalTitle">Referentietijd</h3>
+    <div id="raceErrorMsg" class="extra-warn" hidden></div>
     <input type="hidden" id="raceEditId">
     <div class="field">
       <label>Afstand (km)</label>
@@ -890,7 +895,7 @@ async function getAICoachAdvice() {
 
   try {
     const apiKey = ""; 
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
     const payload = {
         contents: [{ parts: [{ text: userQuery }] }],
         systemInstruction: { parts: [{ text: systemPrompt }] }
@@ -1649,14 +1654,14 @@ function setupEventListeners() {
   if(startAppBtn) {
       startAppBtn.onclick = () => {
         const newName = document.getElementById('obName').value.trim();
+        const errorEl = document.getElementById('obErrorMsg');
+        
         if(!newName) {
-           alert("Vul alsjeblieft een naam in om door te gaan.");
+           errorEl.textContent = "Vul alsjeblieft een naam in om door te gaan.";
+           errorEl.hidden = false;
            return;
         }
-
-        if(allData[newName] && Object.keys(allData[newName].logs).length > 0) {
-           if(!confirm("Dit profiel bestaat al. Wil je hiermee verder gaan en de gegevens overschrijven?")) return;
-        }
+        errorEl.hidden = true;
 
         if (!allData[newName]) {
             allData[newName] = defaultUserState();
@@ -1695,50 +1700,62 @@ function setupEventListeners() {
 
 
   // -- SIDEBAR SETTINGS --
-  document.getElementById('themePicker').addEventListener('input', (e) => {
-     state.themeColor = e.target.value;
-     applyTheme(state.themeColor);
-     save();
-  });
+  const themePicker = document.getElementById('themePicker');
+  if(themePicker) {
+      themePicker.addEventListener('input', (e) => {
+         state.themeColor = e.target.value;
+         applyTheme(state.themeColor);
+         save();
+      });
+  }
   
-  document.getElementById('resetThemeBtn').onclick = () => {
-     state.themeColor = null;
-     applyTheme(null);
-     save();
-  };
+  const resetThemeBtn = document.getElementById('resetThemeBtn');
+  if(resetThemeBtn) {
+      resetThemeBtn.onclick = () => {
+         state.themeColor = null;
+         applyTheme(null);
+         save();
+      };
+  }
 
-  document.getElementById('calcTimeBtn').onclick = ()=>{
-    const newName = document.getElementById('userName').value.trim() || 'Standaard';
-    if(newName !== currentUsername) {
-        allData[currentUsername] = state;
-        currentUsername = newName;
-        if(!allData[currentUsername]) {
-            allData[currentUsername] = defaultUserState();
+  const calcTimeBtn = document.getElementById('calcTimeBtn');
+  if(calcTimeBtn) {
+      calcTimeBtn.onclick = ()=>{
+        const newName = document.getElementById('userName').value.trim() || 'Standaard';
+        if(newName !== currentUsername) {
+            allData[currentUsername] = state;
+            currentUsername = newName;
+            if(!allData[currentUsername]) {
+                allData[currentUsername] = defaultUserState();
+            }
+            state = allData[currentUsername];
         }
-        state = allData[currentUsername];
-    }
-    
-    state.gender = document.getElementById('userGender').value;
-    state.age = parseInt(document.getElementById('userAge').value) || 30;
-    
-    const rHr = document.getElementById('userRestHr').value;
-    state.restHr = rHr ? parseInt(rHr) : null;
-    
-    const mHr = document.getElementById('userMaxHr').value;
-    state.maxHrOverride = mHr ? parseInt(mHr) : null;
+        
+        state.gender = document.getElementById('userGender').value;
+        state.age = parseInt(document.getElementById('userAge').value) || 30;
+        
+        const rHr = document.getElementById('userRestHr').value;
+        state.restHr = rHr ? parseInt(rHr) : null;
+        
+        const mHr = document.getElementById('userMaxHr').value;
+        state.maxHrOverride = mHr ? parseInt(mHr) : null;
 
-    let minD = parseInt(document.getElementById('userMinDays').value) || 3;
-    let maxD = parseInt(document.getElementById('userMaxDays').value) || 4;
-    if(minD > maxD) maxD = minD;
-    state.minDays = Math.max(1, Math.min(7, minD));
-    state.maxDays = Math.max(1, Math.min(7, maxD));
+        let minD = parseInt(document.getElementById('userMinDays').value) || 3;
+        let maxD = parseInt(document.getElementById('userMaxDays').value) || 4;
+        if(minD > maxD) maxD = minD;
+        state.minDays = Math.max(1, Math.min(7, minD));
+        state.maxDays = Math.max(1, Math.min(7, maxD));
 
-    save();
-    render(); 
-  };
+        save();
+        render(); 
+      };
+  }
 
-  document.getElementById('raceDateInput').onchange = (e)=>{ state.raceDate = e.target.value; save(); render(); };
-  document.getElementById('startDateInput').onchange = (e)=>{ state.startDate = e.target.value; save(); render(); };
+  const raceDateInput = document.getElementById('raceDateInput');
+  if(raceDateInput) raceDateInput.onchange = (e)=>{ state.raceDate = e.target.value; save(); render(); };
+  
+  const startDateInput = document.getElementById('startDateInput');
+  if(startDateInput) startDateInput.onchange = (e)=>{ state.startDate = e.target.value; save(); render(); };
 
   document.querySelectorAll('.distance-btn').forEach(btn => {
     btn.onclick = (e) => {
@@ -1750,96 +1767,129 @@ function setupEventListeners() {
       document.getElementById('raceTime').value = '';
       document.getElementById('raceHr').value = '';
       document.getElementById('raceOverlay').hidden = false;
+      document.getElementById('raceErrorMsg').hidden = true;
     };
   });
 
-  document.getElementById('raceInputType').onchange = (e) => {
-      document.getElementById('raceTimeLabel').textContent = e.target.value === 'pace' ? 'Tijd (mm:ss per km)' : 'Tijd (mm:ss of h:mm:ss)';
-  };
+  const raceInputType = document.getElementById('raceInputType');
+  if(raceInputType) {
+      raceInputType.onchange = (e) => {
+          document.getElementById('raceTimeLabel').textContent = e.target.value === 'pace' ? 'Tijd (mm:ss per km)' : 'Tijd (mm:ss of h:mm:ss)';
+      };
+  }
 
-  document.getElementById('saveLogBtn').onclick = ()=>{
-    const {week, session, isExtra} = activeSession;
-    
-    const distance = parseFloat(document.getElementById('logDistance').value) || (session ? session.km : 5);
-    const minutes = parseFloat(document.getElementById('logMinutes').value) || null;
-    const hr = parseInt(document.getElementById('logHr').value, 10) || null;
-    const date = document.getElementById('logDate').value || new Date().toISOString().slice(0,10);
-    const feel = document.querySelector('input[name="feel"]:checked').value;
-    
-    if (isExtra) {
-        if(!state.extras) state.extras = {};
-        if(!state.extras[week.weekNum]) state.extras[week.weekNum] = [];
-        if (session && session.isExtra) {
-            state.extras[week.weekNum][session.extIndex] = { id: session.logData.id, distance, minutes, feel, hr, skipped: false, date };
+  const saveLogBtn = document.getElementById('saveLogBtn');
+  if(saveLogBtn) {
+      saveLogBtn.onclick = ()=>{
+        const {week, session, isExtra} = activeSession;
+        
+        const distance = parseFloat(document.getElementById('logDistance').value) || (session ? session.km : 5);
+        const minutes = parseFloat(document.getElementById('logMinutes').value) || null;
+        const hr = parseInt(document.getElementById('logHr').value, 10) || null;
+        const date = document.getElementById('logDate').value || new Date().toISOString().slice(0,10);
+        const feel = document.querySelector('input[name="feel"]:checked').value;
+        
+        if (isExtra) {
+            if(!state.extras) state.extras = {};
+            if(!state.extras[week.weekNum]) state.extras[week.weekNum] = [];
+            if (session && session.isExtra) {
+                state.extras[week.weekNum][session.extIndex] = { id: session.logData.id, distance, minutes, feel, hr, skipped: false, date };
+            } else {
+                state.extras[week.weekNum].push({ id: Date.now(), distance, minutes, feel, hr, skipped: false, date });
+            }
         } else {
-            state.extras[week.weekNum].push({ id: Date.now(), distance, minutes, feel, hr, skipped: false, date });
+            const key = sessionKey(week.weekNum, session.idx);
+            state.logs[key] = {distance, minutes, feel, hr, skipped:false, date};
         }
-    } else {
+        
+        updateAdjustmentFactor();
+        save();
+        document.getElementById('logOverlay').hidden = true;
+        render();
+      };
+  }
+
+  const skipBtn = document.getElementById('skipBtn');
+  if(skipBtn) {
+      skipBtn.onclick = ()=>{
+        const {week, session} = activeSession;
         const key = sessionKey(week.weekNum, session.idx);
-        state.logs[key] = {distance, minutes, feel, hr, skipped:false, date};
-    }
-    
-    updateAdjustmentFactor();
-    save();
-    document.getElementById('logOverlay').hidden = true;
-    render();
-  };
+        const date = document.getElementById('logDate').value || new Date().toISOString().slice(0,10);
+        state.logs[key] = {distance:0, minutes:null, feel:null, hr:null, skipped:true, date};
+        
+        updateAdjustmentFactor();
+        save();
+        document.getElementById('logOverlay').hidden = true;
+        render();
+      };
+  }
 
-  document.getElementById('skipBtn').onclick = ()=>{
-    const {week, session} = activeSession;
-    const key = sessionKey(week.weekNum, session.idx);
-    const date = document.getElementById('logDate').value || new Date().toISOString().slice(0,10);
-    state.logs[key] = {distance:0, minutes:null, feel:null, hr:null, skipped:true, date};
-    
-    updateAdjustmentFactor();
-    save();
-    document.getElementById('logOverlay').hidden = true;
-    render();
-  };
+  const logOverlay = document.getElementById('logOverlay');
+  if(logOverlay) {
+      logOverlay.addEventListener('click', e=>{ if(e.target.id==='logOverlay') e.currentTarget.hidden = true; });
+  }
 
-  document.getElementById('logOverlay').addEventListener('click', e=>{ if(e.target.id==='logOverlay') e.currentTarget.hidden = true; });
+  const addRaceBtn = document.getElementById('addRaceBtn');
+  if(addRaceBtn) {
+      addRaceBtn.onclick = ()=>{
+        document.getElementById('raceModalTitle').textContent = "Referentietijd toevoegen";
+        document.getElementById('raceEditId').value = '';
+        document.getElementById('raceDistance').value = 10;
+        document.getElementById('raceDate').value = new Date().toISOString().slice(0,10);
+        document.getElementById('raceTime').value = '';
+        document.getElementById('raceHr').value = '';
+        document.getElementById('raceOverlay').hidden = false;
+        document.getElementById('raceErrorMsg').hidden = true;
+      };
+  }
 
-  document.getElementById('addRaceBtn').onclick = ()=>{
-    document.getElementById('raceModalTitle').textContent = "Referentietijd toevoegen";
-    document.getElementById('raceEditId').value = '';
-    document.getElementById('raceDistance').value = 10;
-    document.getElementById('raceDate').value = new Date().toISOString().slice(0,10);
-    document.getElementById('raceTime').value = '';
-    document.getElementById('raceHr').value = '';
-    document.getElementById('raceOverlay').hidden = false;
-  };
+  const cancelRaceBtn = document.getElementById('cancelRaceBtn');
+  if(cancelRaceBtn) {
+      cancelRaceBtn.onclick = ()=>{ document.getElementById('raceOverlay').hidden = true; };
+  }
+  
+  const raceOverlay = document.getElementById('raceOverlay');
+  if(raceOverlay) {
+      raceOverlay.addEventListener('click', e=>{ if(e.target.id==='raceOverlay') e.currentTarget.hidden = true; });
+  }
 
-  document.getElementById('cancelRaceBtn').onclick = ()=>{ document.getElementById('raceOverlay').hidden = true; };
-  document.getElementById('raceOverlay').addEventListener('click', e=>{ if(e.target.id==='raceOverlay') e.currentTarget.hidden = true; });
-
-  document.getElementById('saveRaceBtn').onclick = ()=>{
-    const distance = parseFloat(document.getElementById('raceDistance').value);
-    const date = document.getElementById('raceDate').value;
-    const isPace = document.getElementById('raceInputType').value === 'pace';
-    const parsedSec = parseTimeToSec(document.getElementById('raceTime').value);
-    
-    if(!distance || !date || !parsedSec){ alert('Vul afstand, datum en tijd correct in.'); return; }
-    
-    const timeSec = isPace ? parsedSec * distance : parsedSec;
-    const hrVal = document.getElementById('raceHr').value;
-    const hr = hrVal ? parseInt(hrVal) : null;
-    
-    const editId = document.getElementById('raceEditId').value;
-
-    if (editId) {
-        const idx = state.races.findIndex(r => r.id === editId);
-        if(idx !== -1) {
-            state.races[idx] = { id: editId, distance, date, timeSec, hr };
+  const saveRaceBtn = document.getElementById('saveRaceBtn');
+  if(saveRaceBtn) {
+      saveRaceBtn.onclick = ()=>{
+        const distance = parseFloat(document.getElementById('raceDistance').value);
+        const date = document.getElementById('raceDate').value;
+        const isPace = document.getElementById('raceInputType').value === 'pace';
+        const parsedSec = parseTimeToSec(document.getElementById('raceTime').value);
+        const errEl = document.getElementById('raceErrorMsg');
+        
+        if(!distance || !date || !parsedSec){ 
+            errEl.textContent = 'Vul afstand, datum en tijd correct in.';
+            errEl.hidden = false;
+            return; 
         }
-    } else {
-        state.races.push({id:'r'+state.nextRaceId, distance, date, timeSec, hr});
-        state.nextRaceId++;
-    }
-    
-    save();
-    document.getElementById('raceOverlay').hidden = true;
-    render();
-  };
+        errEl.hidden = true;
+        
+        const timeSec = isPace ? parsedSec * distance : parsedSec;
+        const hrVal = document.getElementById('raceHr').value;
+        const hr = hrVal ? parseInt(hrVal) : null;
+        
+        const editId = document.getElementById('raceEditId').value;
+
+        if (editId) {
+            const idx = state.races.findIndex(r => r.id === editId);
+            if(idx !== -1) {
+                state.races[idx] = { id: editId, distance, date, timeSec, hr };
+            }
+        } else {
+            state.races.push({id:'r'+state.nextRaceId, distance, date, timeSec, hr});
+            state.nextRaceId++;
+        }
+        
+        save();
+        document.getElementById('raceOverlay').hidden = true;
+        render();
+      };
+  }
   
   const aiBtn = document.getElementById('aiCoachBtn');
   if(aiBtn) aiBtn.onclick = getAICoachAdvice;

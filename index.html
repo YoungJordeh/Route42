@@ -999,6 +999,7 @@ function calcPaces(){
   if(!races || races.length===0) {
     let best10kPace = Infinity;
     
+    // Kijk in alle normale trainingen voor de beste richttijd
     for(const key in state.logs){
        const l = state.logs[key];
        if(l.skipped || !l.distance || !l.timeSec) continue;
@@ -1010,6 +1011,7 @@ function calcPaces(){
        if(est10k < best10kPace) best10kPace = est10k;
     }
     
+    // Kijk ook in de extra trainingen
     if(state.extras) {
         for(const week in state.extras) {
            state.extras[week].forEach(l => {
@@ -1024,8 +1026,9 @@ function calcPaces(){
         }
     }
 
-    if(best10kPace === Infinity) return null; 
+    if(best10kPace === Infinity) return null; // Geen races én geen bruikbare logs
 
+    // Maak een virtuele race aan op basis van de beste training
     races = [{ distance: 10, timeSec: best10kPace * 10 }];
     usingLogs = true;
   }
@@ -1148,16 +1151,17 @@ function generatePlan(skipBioLoop = false){
   const totalWeeks = Math.max(6, Math.ceil(totalDays/7));
   const taperWeeks = 2;
   
+  // Custom fysiologische opbouw op basis van Onboarding
   const startLR = state.longestRun && state.longestRun > 0 ? state.longestRun : 6;
   
   let absPeakLR = 28;
-  if(state.pastVolume === 'low') absPeakLR = 25; 
-  else if(state.pastVolume === 'med') absPeakLR = 30; 
-  else if(state.pastVolume === 'high') absPeakLR = 32; 
-  else if(state.pastVolume === 'elite') absPeakLR = 35; 
+  if(state.pastVolume === 'low') absPeakLR = 25; // Beschermt beginners tegen overbelasting
+  else if(state.pastVolume === 'med') absPeakLR = 30; // Standaard veilige opbouw
+  else if(state.pastVolume === 'high') absPeakLR = 32; // Perfect voor gevorderden
+  else if(state.pastVolume === 'elite') absPeakLR = 35; // Voor extreme km-vreters
 
   const peakWeekIndex = totalWeeks - taperWeeks - 1;
-  const peakLR = Math.min(absPeakLR, startLR + (peakWeekIndex * 2.5)); 
+  const peakLR = Math.min(absPeakLR, startLR + (peakWeekIndex * 2.5)); // Max 2.5km opbouw per week
   
   if(!state.userExponent) updateAdjustmentFactor();
   
@@ -1171,6 +1175,7 @@ function generatePlan(skipBioLoop = false){
   }
   vFactor = Math.max(0.75, Math.min(1.25, vFactor));
 
+  // Determine user day bounds
   const minD = state.minDays || 3;
   const maxD = state.maxDays || 4;
 
@@ -1182,6 +1187,7 @@ function generatePlan(skipBioLoop = false){
     const isCutback = !isTaper && !isRaceWeek && (weekNum % 4 === 0);
     const weekStart = new Date(startDate.getTime() + i*7*DAY);
 
+    // Calculate long run
     let lr;
     if(isRaceWeek){
       lr = 42.195;
@@ -1201,10 +1207,13 @@ function generatePlan(skipBioLoop = false){
       if(lr > 34) lr = 34; 
     }
 
+    // Dynamic Run Days logic
     let progressRatio = peakWeekIndex > 0 ? (i / peakWeekIndex) : 1;
     let baseDays = minD + Math.round((maxD - minD) * progressRatio);
     
     if(isCutback || isTaper) baseDays = minD;
+    
+    // Adapt to user fatigue (vFactor)
     if(vFactor < 0.95) baseDays = Math.max(minD, baseDays - 1);
     if(vFactor > 1.10) baseDays = Math.min(maxD, baseDays + 1);
 
@@ -2130,12 +2139,14 @@ function setupEventListeners() {
   if(calcTimeBtn) {
       calcTimeBtn.onclick = ()=>{
         const newName = document.getElementById('userName').value.trim() || 'Standaard';
+        
+        // BUG FIX: Als we de naam aanpassen, gooi de oude naam in het geheugen dan netjes weg.
         if(newName !== currentUsername) {
-            allData[currentUsername] = state;
-            currentUsername = newName;
-            if(!allData[currentUsername]) {
-                allData[currentUsername] = defaultUserState();
+            allData[newName] = state;
+            if(currentUsername !== 'Standaard') {
+                delete allData[currentUsername]; 
             }
+            currentUsername = newName;
             state = allData[currentUsername];
         }
         
@@ -2354,14 +2365,9 @@ function setupEventListeners() {
   const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
   if (confirmDeleteBtn) {
       confirmDeleteBtn.onclick = () => {
-          const overlay = document.getElementById('deleteConfirmOverlay');
-          const target = overlay.dataset.target;
-          
-          // Direct pop-up sluiten voor de gebruiker
-          overlay.hidden = true;
-          
+          const target = document.getElementById('deleteConfirmOverlay').dataset.target;
           if (target && allData[target]) {
-              // Verwijder het specifieke profiel uit het werkgeheugen
+              // 1. Verwijder uit geheugen
               delete allData[target]; 
               
               if (currentUsername === target) {
@@ -2369,73 +2375,21 @@ function setupEventListeners() {
                   state = null;
               }
               
-              try {
-                  const dataToSave = JSON.stringify({ currentUsername, allData });
-                  // Synchronoos wegschrijven, om de browser niet in verwarring te brengen
-                  if(typeof window.storage !== 'undefined' && window.storage.set){
-                      window.storage.set(STORAGE_KEY, dataToSave, false);
-                  } else {
-                      localStorage.setItem(STORAGE_KEY, dataToSave);
-                  }
-              } catch(err) {
-                  console.warn('Opslaan verwijdering mislukt:', err);
-              }
+              // 2. Direct Opslaan in de kluis
+              save();
               
-              // Teken het scherm direct opnieuw met de actuele data in het werkgeheugen
-              initFlow(); 
+              // 3. Verberg de pop-up
+              document.getElementById('deleteConfirmOverlay').hidden = true;
+              
+              // 4. Update het scherm direct vanuit het geheugen
+              renderProfileListOrOnboarding();
           }
       };
   }
 }
 
 // ---------- BOOTSTRAPPING ----------
-async function save(){
-  try{
-    if (state) {
-        allData[currentUsername] = state; 
-    }
-    const dataToSave = JSON.stringify({ currentUsername, allData });
-    if(typeof window.storage !== 'undefined' && window.storage.set){
-      await window.storage.set(STORAGE_KEY, dataToSave, false);
-    } else {
-      localStorage.setItem(STORAGE_KEY, dataToSave);
-    }
-  }catch(err){
-    console.warn('Opslaan mislukt', err);
-  }
-}
-
-async function load(){
-  try{
-    let raw = null;
-    if(typeof window.storage !== 'undefined' && window.storage.get){
-      const res = await window.storage.get(STORAGE_KEY, false);
-      if(res && res.value) raw = res.value;
-    } else {
-      raw = localStorage.getItem(STORAGE_KEY);
-    }
-    
-    if(raw) {
-        const parsed = JSON.parse(raw);
-        if (parsed.currentUsername && parsed.allData) {
-            currentUsername = parsed.currentUsername;
-            allData = parsed.allData;
-        } else {
-            allData = { 'Standaard': parsed };
-            currentUsername = 'Standaard';
-        }
-    } else {
-        allData = {}; 
-        currentUsername = 'Standaard';
-    }
-  }catch(err){
-    console.warn('Laden mislukt of nieuw schema gestart', err);
-    allData = {}; 
-    currentUsername = 'Standaard';
-  }
-}
-
-function initFlow() {
+function renderProfileListOrOnboarding() {
    const validUsers = Object.keys(allData).filter(name => {
       if(name === 'Standaard') {
           const st = allData[name];
@@ -2500,9 +2454,59 @@ function initFlow() {
    }
 }
 
-window.addEventListener('DOMContentLoaded', async () => {
+async function save(){
+  try{
+    if (state) {
+        allData[currentUsername] = state; 
+    }
+    const dataToSave = JSON.stringify({ currentUsername, allData });
+    if(typeof window.storage !== 'undefined' && window.storage.set){
+      await window.storage.set(STORAGE_KEY, dataToSave, false);
+    } else {
+      localStorage.setItem(STORAGE_KEY, dataToSave);
+    }
+  }catch(err){
+    console.warn('Opslaan mislukt', err);
+  }
+}
+
+async function load(){
+  try{
+    let raw = null;
+    if(typeof window.storage !== 'undefined' && window.storage.get){
+      const res = await window.storage.get(STORAGE_KEY, false);
+      if(res && res.value) raw = res.value;
+    } else {
+      raw = localStorage.getItem(STORAGE_KEY);
+    }
+    
+    if(raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed.currentUsername && parsed.allData) {
+            currentUsername = parsed.currentUsername;
+            allData = parsed.allData;
+        } else {
+            allData = { 'Standaard': parsed };
+            currentUsername = 'Standaard';
+        }
+    } else {
+        allData = {}; 
+        currentUsername = 'Standaard';
+    }
+  }catch(err){
+    console.warn('Laden mislukt of nieuw schema gestart', err);
+    allData = {}; 
+    currentUsername = 'Standaard';
+  }
+}
+
+async function initFlow() {
+   await load();
+   renderProfileListOrOnboarding();
+}
+
+window.addEventListener('DOMContentLoaded', () => {
   setupEventListeners();
-  await load(); 
   initFlow();
 });
 </script>

@@ -999,7 +999,6 @@ function calcPaces(){
   if(!races || races.length===0) {
     let best10kPace = Infinity;
     
-    // Kijk in alle normale trainingen voor de beste richttijd
     for(const key in state.logs){
        const l = state.logs[key];
        if(l.skipped || !l.distance || !l.timeSec) continue;
@@ -1011,7 +1010,6 @@ function calcPaces(){
        if(est10k < best10kPace) best10kPace = est10k;
     }
     
-    // Kijk ook in de extra trainingen
     if(state.extras) {
         for(const week in state.extras) {
            state.extras[week].forEach(l => {
@@ -1026,9 +1024,8 @@ function calcPaces(){
         }
     }
 
-    if(best10kPace === Infinity) return null; // Geen races én geen bruikbare logs
+    if(best10kPace === Infinity) return null; 
 
-    // Maak een virtuele race aan op basis van de beste training
     races = [{ distance: 10, timeSec: best10kPace * 10 }];
     usingLogs = true;
   }
@@ -1151,17 +1148,16 @@ function generatePlan(skipBioLoop = false){
   const totalWeeks = Math.max(6, Math.ceil(totalDays/7));
   const taperWeeks = 2;
   
-  // Custom fysiologische opbouw op basis van Onboarding
   const startLR = state.longestRun && state.longestRun > 0 ? state.longestRun : 6;
   
   let absPeakLR = 28;
-  if(state.pastVolume === 'low') absPeakLR = 25; // Beschermt beginners tegen overbelasting
-  else if(state.pastVolume === 'med') absPeakLR = 30; // Standaard veilige opbouw
-  else if(state.pastVolume === 'high') absPeakLR = 32; // Perfect voor gevorderden
-  else if(state.pastVolume === 'elite') absPeakLR = 35; // Voor extreme km-vreters
+  if(state.pastVolume === 'low') absPeakLR = 25; 
+  else if(state.pastVolume === 'med') absPeakLR = 30; 
+  else if(state.pastVolume === 'high') absPeakLR = 32; 
+  else if(state.pastVolume === 'elite') absPeakLR = 35; 
 
   const peakWeekIndex = totalWeeks - taperWeeks - 1;
-  const peakLR = Math.min(absPeakLR, startLR + (peakWeekIndex * 2.5)); // Max 2.5km opbouw per week
+  const peakLR = Math.min(absPeakLR, startLR + (peakWeekIndex * 2.5)); 
   
   if(!state.userExponent) updateAdjustmentFactor();
   
@@ -1175,7 +1171,6 @@ function generatePlan(skipBioLoop = false){
   }
   vFactor = Math.max(0.75, Math.min(1.25, vFactor));
 
-  // Determine user day bounds
   const minD = state.minDays || 3;
   const maxD = state.maxDays || 4;
 
@@ -1187,7 +1182,6 @@ function generatePlan(skipBioLoop = false){
     const isCutback = !isTaper && !isRaceWeek && (weekNum % 4 === 0);
     const weekStart = new Date(startDate.getTime() + i*7*DAY);
 
-    // Calculate long run
     let lr;
     if(isRaceWeek){
       lr = 42.195;
@@ -1207,13 +1201,10 @@ function generatePlan(skipBioLoop = false){
       if(lr > 34) lr = 34; 
     }
 
-    // Dynamic Run Days logic
     let progressRatio = peakWeekIndex > 0 ? (i / peakWeekIndex) : 1;
     let baseDays = minD + Math.round((maxD - minD) * progressRatio);
     
     if(isCutback || isTaper) baseDays = minD;
-    
-    // Adapt to user fatigue (vFactor)
     if(vFactor < 0.95) baseDays = Math.max(minD, baseDays - 1);
     if(vFactor > 1.10) baseDays = Math.min(maxD, baseDays + 1);
 
@@ -2362,9 +2353,15 @@ function setupEventListeners() {
 
   const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
   if (confirmDeleteBtn) {
-      confirmDeleteBtn.onclick = async () => {
-          const target = document.getElementById('deleteConfirmOverlay').dataset.target;
+      confirmDeleteBtn.onclick = () => {
+          const overlay = document.getElementById('deleteConfirmOverlay');
+          const target = overlay.dataset.target;
+          
+          // Direct pop-up sluiten voor de gebruiker
+          overlay.hidden = true;
+          
           if (target && allData[target]) {
+              // Verwijder het specifieke profiel uit het werkgeheugen
               delete allData[target]; 
               
               if (currentUsername === target) {
@@ -2374,8 +2371,9 @@ function setupEventListeners() {
               
               try {
                   const dataToSave = JSON.stringify({ currentUsername, allData });
+                  // Synchronoos wegschrijven, om de browser niet in verwarring te brengen
                   if(typeof window.storage !== 'undefined' && window.storage.set){
-                      await window.storage.set(STORAGE_KEY, dataToSave, false);
+                      window.storage.set(STORAGE_KEY, dataToSave, false);
                   } else {
                       localStorage.setItem(STORAGE_KEY, dataToSave);
                   }
@@ -2383,8 +2381,8 @@ function setupEventListeners() {
                   console.warn('Opslaan verwijdering mislukt:', err);
               }
               
-              document.getElementById('deleteConfirmOverlay').hidden = true;
-              await initFlow(); 
+              // Teken het scherm direct opnieuw met de actuele data in het werkgeheugen
+              initFlow(); 
           }
       };
   }
@@ -2437,9 +2435,7 @@ async function load(){
   }
 }
 
-async function initFlow() {
-   await load();
-   
+function initFlow() {
    const validUsers = Object.keys(allData).filter(name => {
       if(name === 'Standaard') {
           const st = allData[name];
@@ -2504,8 +2500,9 @@ async function initFlow() {
    }
 }
 
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', async () => {
   setupEventListeners();
+  await load(); 
   initFlow();
 });
 </script>

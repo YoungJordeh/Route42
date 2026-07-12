@@ -92,9 +92,9 @@
   .post.current .wk{color:var(--gold); font-weight:600;}
   .flag{position:absolute; bottom: 22px; font-size:18px;}
   .runner-icon{
-      position:absolute; bottom:22px; font-size:24px; z-index:10; 
-      filter:drop-shadow(0 2px 4px rgba(0,0,0,0.4));
-      transform: scaleX(-1);
+    position:absolute; bottom:22px; font-size:24px; z-index:10; 
+    filter:drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+    transform: scaleX(-1); /* Spiegelt de emoji zodat deze naar rechts rent */
   }
 
   /* ---- GRID ---- */
@@ -231,8 +231,8 @@
   .action-group { display:flex; gap:6px; justify-content: flex-end; margin-top:6px; }
 
   /* ---- PROFILE & ZONES ---- */
-  .profile-row{display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:12px;}
-  .profile-row label{font-size:13px; color:var(--text-muted); display:block;}
+  .profile-row{display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;}
+  .profile-row label{font-size:13px; color:var(--text-muted); min-height: 24px; display:flex; align-items:center;}
   .profile-row input[type=text], .profile-row input[type=number], .profile-row select{
     width:100px; background:var(--bg); border:1px solid var(--border); border-radius:6px; color:var(--text);
     font-size:13px; padding:4px 8px; text-align:right;
@@ -376,14 +376,14 @@
       </select>
     </div>
     
-    <div class="grid" style="grid-template-columns:1fr 1fr; gap:10px; align-items:flex-end;">
-       <div class="field" style="margin-bottom:0;">
-         <label title="Bepaalt de startafstand van je schema">Langste duurloop<br><span style="font-size:10px; font-weight:normal;">(4 wkn, km)</span></label>
-         <input type="number" id="obLongestRun" placeholder="Bv. 10" min="0" max="42">
+    <div class="grid" style="grid-template-columns:1fr 1fr; gap:10px;">
+       <div class="field" style="display:flex; flex-direction:column; justify-content:flex-end;">
+         <label title="Bepaalt de startafstand van je schema" style="margin-bottom:auto;">Langste duurloop<br><span style="font-size:10px; font-weight:normal;">(4 wkn, km)</span></label>
+         <input type="number" id="obLongestRun" placeholder="Bv. 10" min="0" max="42" style="margin-top:5px;">
        </div>
-       <div class="field" style="margin-bottom:0;">
-         <label title="Helpt voor hersteladvies en AI coach">Andere intensieve sport<br><span style="font-size:10px; font-weight:normal;">(uur / week)</span></label>
-         <select id="obOtherSport">
+       <div class="field" style="display:flex; flex-direction:column; justify-content:flex-end;">
+         <label title="Helpt voor hersteladvies en AI coach" style="margin-bottom:auto;">Extra sport<br><span style="font-size:10px; font-weight:normal;">(uur / week)</span></label>
+         <select id="obOtherSport" style="margin-top:5px;">
            <option value="0" selected>0 uur</option>
            <option value="1-3">1 - 3 uur</option>
            <option value="3-6">3 - 6 uur</option>
@@ -392,7 +392,7 @@
        </div>
     </div>
 
-    <div class="field" style="margin-top:15px;">
+    <div class="field" style="margin-top:5px;">
       <label title="Hoeveel dagen per week wil je lopen?">Aantal hardloopdagen per week (min-max)</label>
       <div style="display:flex; gap:10px;">
          <input type="number" id="obMinDays" value="3" min="1" max="7">
@@ -545,18 +545,19 @@
               <option value="elite">&gt; 50 km/week</option>
             </select>
           </div>
-          <div class="profile-row">
-             <label title="Bepaalt startafstand">Langste duurloop<br><span style="font-size:10px; font-weight:normal;">(4 wkn)</span></label>
-             <div style="display:flex; align-items:center; gap:4px;"><input type="number" id="userLongestRun" placeholder="Bv. 12" min="0" max="42" style="width:60px;"> <span style="font-size:12px; color:var(--text-muted);">km</span></div>
+          
+          <div class="profile-row" style="align-items: flex-end;">
+            <label title="Bepaalt startafstand" style="line-height:1.2;">Langste duurloop<br><span style="font-size:10px;">(4 wkn, km)</span></label>
+            <div style="display:flex; align-items:center; gap:4px;"><input type="number" id="userLongestRun" placeholder="Bv. 12" min="0" max="42" style="width:60px;"></div>
           </div>
-          <div class="profile-row">
-             <label title="Voor herstel-logica">Andere sport<br><span style="font-size:10px; font-weight:normal;">(uur / week)</span></label>
-             <select id="userOtherSport" style="width:100px;">
-               <option value="0">0 uur</option>
-               <option value="1-3">1 - 3 uur</option>
-               <option value="3-6">3 - 6 uur</option>
-               <option value=">6">&gt; 6 uur</option>
-             </select>
+          <div class="profile-row" style="align-items: flex-end;">
+            <label title="Voor herstel-logica" style="line-height:1.2;">Extra sport<br><span style="font-size:10px;">(uur / week)</span></label>
+            <select id="userOtherSport" style="width:110px;">
+              <option value="0">0 uur</option>
+              <option value="1-3">1 - 3 uur</option>
+              <option value="3-6">3 - 6 uur</option>
+              <option value=">6">&gt; 6 uur</option>
+            </select>
           </div>
           
           <div class="profile-row" style="margin-top:16px;">
@@ -722,9 +723,9 @@
   <div class="modal" style="max-width: 320px; text-align:center;">
     <h3>Profiel verwijderen?</h3>
     <p class="subtitle" style="margin-bottom:20px;">Weet je zeker dat je het profiel '<strong id="delProfileName" style="color:var(--text);"></strong>' wilt verwijderen? Je raakt al je gelogde trainingen kwijt.</p>
-    <div class="modal-actions" style="justify-content:center; gap:12px;">
-      <button class="btn secondary" id="cancelDelProfileBtn">Annuleren</button>
-      <button class="btn" id="confirmDelProfileBtn" style="background:var(--rust); color:#fff; border-color:var(--rust);">Verwijderen</button>
+    <div class="modal-actions" style="justify-content: center; gap: 15px;">
+      <button class="btn secondary" id="cancelDeleteBtn">Annuleren</button>
+      <button class="btn" id="confirmDeleteBtn" style="background:var(--rust); color:#fff; border:none;">Verwijderen</button>
     </div>
   </div>
 </div>
@@ -737,7 +738,6 @@ let allData = {};
 let currentUsername = 'Standaard';
 let state = null; 
 let activeSession = null;
-let profileToDelete = null;
 
 function defaultUserState(){
   return {
@@ -750,8 +750,8 @@ function defaultUserState(){
     minDays: 3,
     maxDays: 4,
     pastVolume: 'med',
-    longestRun: null, 
-    otherSportHours: '0', 
+    longestRun: null,
+    otherSportHours: '0',
     races: [], 
     logs: {},
     extras: {},
@@ -999,6 +999,7 @@ function calcPaces(){
   if(!races || races.length===0) {
     let best10kPace = Infinity;
     
+    // Kijk in alle normale trainingen voor de beste richttijd
     for(const key in state.logs){
        const l = state.logs[key];
        if(l.skipped || !l.distance || !l.timeSec) continue;
@@ -1010,6 +1011,7 @@ function calcPaces(){
        if(est10k < best10kPace) best10kPace = est10k;
     }
     
+    // Kijk ook in de extra trainingen
     if(state.extras) {
         for(const week in state.extras) {
            state.extras[week].forEach(l => {
@@ -1024,8 +1026,9 @@ function calcPaces(){
         }
     }
 
-    if(best10kPace === Infinity) return null; 
+    if(best10kPace === Infinity) return null; // Geen races én geen bruikbare logs
 
+    // Maak een virtuele race aan op basis van de beste training
     races = [{ distance: 10, timeSec: best10kPace * 10 }];
     usingLogs = true;
   }
@@ -1148,16 +1151,17 @@ function generatePlan(skipBioLoop = false){
   const totalWeeks = Math.max(6, Math.ceil(totalDays/7));
   const taperWeeks = 2;
   
+  // Custom fysiologische opbouw op basis van Onboarding
   const startLR = state.longestRun && state.longestRun > 0 ? state.longestRun : 6;
   
   let absPeakLR = 28;
-  if(state.pastVolume === 'low') absPeakLR = 25;
-  else if(state.pastVolume === 'med') absPeakLR = 30;
-  else if(state.pastVolume === 'high') absPeakLR = 32;
-  else if(state.pastVolume === 'elite') absPeakLR = 35;
+  if(state.pastVolume === 'low') absPeakLR = 25; // Beschermt beginners tegen overbelasting
+  else if(state.pastVolume === 'med') absPeakLR = 30; // Standaard veilige opbouw
+  else if(state.pastVolume === 'high') absPeakLR = 32; // Perfect voor gevorderden
+  else if(state.pastVolume === 'elite') absPeakLR = 35; // Voor extreme km-vreters
 
   const peakWeekIndex = totalWeeks - taperWeeks - 1;
-  const peakLR = Math.min(absPeakLR, startLR + (peakWeekIndex * 2.5));
+  const peakLR = Math.min(absPeakLR, startLR + (peakWeekIndex * 2.5)); // Max 2.5km opbouw per week
   
   if(!state.userExponent) updateAdjustmentFactor();
   
@@ -1171,6 +1175,7 @@ function generatePlan(skipBioLoop = false){
   }
   vFactor = Math.max(0.75, Math.min(1.25, vFactor));
 
+  // Determine user day bounds
   const minD = state.minDays || 3;
   const maxD = state.maxDays || 4;
 
@@ -1182,6 +1187,7 @@ function generatePlan(skipBioLoop = false){
     const isCutback = !isTaper && !isRaceWeek && (weekNum % 4 === 0);
     const weekStart = new Date(startDate.getTime() + i*7*DAY);
 
+    // Calculate long run
     let lr;
     if(isRaceWeek){
       lr = 42.195;
@@ -1201,11 +1207,13 @@ function generatePlan(skipBioLoop = false){
       if(lr > 34) lr = 34; 
     }
 
+    // Dynamic Run Days logic
     let progressRatio = peakWeekIndex > 0 ? (i / peakWeekIndex) : 1;
     let baseDays = minD + Math.round((maxD - minD) * progressRatio);
     
     if(isCutback || isTaper) baseDays = minD;
     
+    // Adapt to user fatigue (vFactor)
     if(vFactor < 0.95) baseDays = Math.max(minD, baseDays - 1);
     if(vFactor > 1.10) baseDays = Math.min(maxD, baseDays + 1);
 
@@ -2345,22 +2353,34 @@ function setupEventListeners() {
   const aiBtn = document.getElementById('aiCoachBtn');
   if(aiBtn) aiBtn.onclick = getAICoachAdvice;
 
-  const cancelDelProfileBtn = document.getElementById('cancelDelProfileBtn');
-  if(cancelDelProfileBtn) {
-      cancelDelProfileBtn.onclick = () => {
+  const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+  if (cancelDeleteBtn) {
+      cancelDeleteBtn.onclick = () => {
           document.getElementById('deleteConfirmOverlay').hidden = true;
-          profileToDelete = null;
       };
   }
-  
-  const confirmDelProfileBtn = document.getElementById('confirmDelProfileBtn');
-  if(confirmDelProfileBtn) {
-      confirmDelProfileBtn.onclick = () => {
-          if (profileToDelete && allData[profileToDelete]) {
-              delete allData[profileToDelete];
-              save();
+
+  const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+  if (confirmDeleteBtn) {
+      confirmDeleteBtn.onclick = () => {
+          const target = document.getElementById('deleteConfirmOverlay').dataset.target;
+          if (target && allData[target]) {
+              delete allData[target]; 
+              
+              if (currentUsername === target) {
+                  currentUsername = 'Standaard';
+                  state = null;
+              }
+              
+              const dataToSave = JSON.stringify({ currentUsername, allData });
+              if(typeof window.storage !== 'undefined'){
+                  window.storage.set(STORAGE_KEY, dataToSave, false);
+              } else {
+                  localStorage.setItem(STORAGE_KEY, dataToSave);
+              }
+              
               document.getElementById('deleteConfirmOverlay').hidden = true;
-              initFlow(); // Herlaad de interface
+              initFlow(); 
           }
       };
   }
@@ -2401,12 +2421,12 @@ async function load(){
             currentUsername = 'Standaard';
         }
     } else {
-        allData = { 'Standaard': defaultUserState() };
+        allData = {}; 
         currentUsername = 'Standaard';
     }
   }catch(err){
     console.warn('Laden mislukt of nieuw schema gestart', err);
-    allData = { 'Standaard': defaultUserState() };
+    allData = {}; 
     currentUsername = 'Standaard';
   }
 }
@@ -2417,7 +2437,7 @@ async function initFlow() {
    const validUsers = Object.keys(allData).filter(name => {
       if(name === 'Standaard') {
           const st = allData[name];
-          if(Object.keys(st.logs).length === 0 && (!st.races || st.races.length === 0)) return false;
+          if(st && Object.keys(st.logs || {}).length === 0 && (!st.races || st.races.length === 0)) return false;
       }
       return true;
    });
@@ -2434,12 +2454,13 @@ async function initFlow() {
            const row = document.createElement('div');
            row.style.display = 'flex';
            row.style.gap = '8px';
-
+           
            const btn = document.createElement('button');
-           btn.className = 'btn secondary';
+           btn.className = 'btn secondary full';
            btn.textContent = u;
            btn.style.textAlign = 'left';
            btn.style.padding = '12px 16px';
+           btn.style.margin = '0';
            btn.style.flex = '1';
            btn.onclick = () => {
                currentUsername = u;
@@ -2452,23 +2473,26 @@ async function initFlow() {
                
                finishOnboarding();
            };
-
+           
            const delBtn = document.createElement('button');
            delBtn.className = 'btn secondary';
            delBtn.innerHTML = '🗑️';
+           delBtn.style.margin = '0';
+           delBtn.style.padding = '0 14px';
            delBtn.title = 'Verwijder profiel';
-           delBtn.style.padding = '12px';
-           delBtn.onclick = () => {
-               profileToDelete = u;
+           delBtn.onclick = (e) => {
+               e.stopPropagation(); 
                document.getElementById('delProfileName').textContent = u;
+               document.getElementById('deleteConfirmOverlay').dataset.target = u;
                document.getElementById('deleteConfirmOverlay').hidden = false;
            };
-
+           
            row.appendChild(btn);
            row.appendChild(delBtn);
            list.appendChild(row);
        });
    } else {
+       document.getElementById('obName').value = '';
        showOnboardingForm();
    }
 }

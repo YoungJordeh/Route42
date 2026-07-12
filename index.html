@@ -2362,7 +2362,7 @@ function setupEventListeners() {
 
   const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
   if (confirmDeleteBtn) {
-      confirmDeleteBtn.onclick = () => {
+      confirmDeleteBtn.onclick = async () => {
           const target = document.getElementById('deleteConfirmOverlay').dataset.target;
           if (target && allData[target]) {
               delete allData[target]; 
@@ -2374,13 +2374,13 @@ function setupEventListeners() {
               
               const dataToSave = JSON.stringify({ currentUsername, allData });
               if(typeof window.storage !== 'undefined'){
-                  window.storage.set(STORAGE_KEY, dataToSave, false);
+                  await window.storage.set(STORAGE_KEY, dataToSave, false);
               } else {
                   localStorage.setItem(STORAGE_KEY, dataToSave);
               }
               
               document.getElementById('deleteConfirmOverlay').hidden = true;
-              initFlow(); 
+              await initFlow(); 
           }
       };
   }

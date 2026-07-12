@@ -718,6 +718,17 @@
   </div>
 </div>
 
+<div class="overlay" id="deleteConfirmOverlay" hidden>
+  <div class="modal" style="max-width: 320px; text-align:center;">
+    <h3>Profiel verwijderen?</h3>
+    <p class="subtitle" style="margin-bottom:20px;">Weet je zeker dat je het profiel '<strong id="delProfileName" style="color:var(--text);"></strong>' wilt verwijderen? Je raakt al je gelogde trainingen kwijt.</p>
+    <div class="modal-actions" style="justify-content:center; gap:12px;">
+      <button class="btn secondary" id="cancelDelProfileBtn">Annuleren</button>
+      <button class="btn" id="confirmDelProfileBtn" style="background:var(--rust); color:#fff; border-color:var(--rust);">Verwijderen</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const STORAGE_KEY = 'route42-multi-state';
 const DAY = 86400000;
@@ -726,6 +737,7 @@ let allData = {};
 let currentUsername = 'Standaard';
 let state = null; 
 let activeSession = null;
+let profileToDelete = null;
 
 function defaultUserState(){
   return {
@@ -2332,6 +2344,26 @@ function setupEventListeners() {
   
   const aiBtn = document.getElementById('aiCoachBtn');
   if(aiBtn) aiBtn.onclick = getAICoachAdvice;
+
+  const cancelDelProfileBtn = document.getElementById('cancelDelProfileBtn');
+  if(cancelDelProfileBtn) {
+      cancelDelProfileBtn.onclick = () => {
+          document.getElementById('deleteConfirmOverlay').hidden = true;
+          profileToDelete = null;
+      };
+  }
+  
+  const confirmDelProfileBtn = document.getElementById('confirmDelProfileBtn');
+  if(confirmDelProfileBtn) {
+      confirmDelProfileBtn.onclick = () => {
+          if (profileToDelete && allData[profileToDelete]) {
+              delete allData[profileToDelete];
+              save();
+              document.getElementById('deleteConfirmOverlay').hidden = true;
+              initFlow(); // Herlaad de interface
+          }
+      };
+  }
 }
 
 // ---------- BOOTSTRAPPING ----------
@@ -2399,11 +2431,16 @@ async function initFlow() {
        const list = document.getElementById('profileList');
        list.innerHTML = '';
        validUsers.forEach(u => {
+           const row = document.createElement('div');
+           row.style.display = 'flex';
+           row.style.gap = '8px';
+
            const btn = document.createElement('button');
-           btn.className = 'btn secondary full';
+           btn.className = 'btn secondary';
            btn.textContent = u;
            btn.style.textAlign = 'left';
            btn.style.padding = '12px 16px';
+           btn.style.flex = '1';
            btn.onclick = () => {
                currentUsername = u;
                state = allData[currentUsername];
@@ -2415,7 +2452,21 @@ async function initFlow() {
                
                finishOnboarding();
            };
-           list.appendChild(btn);
+
+           const delBtn = document.createElement('button');
+           delBtn.className = 'btn secondary';
+           delBtn.innerHTML = '🗑️';
+           delBtn.title = 'Verwijder profiel';
+           delBtn.style.padding = '12px';
+           delBtn.onclick = () => {
+               profileToDelete = u;
+               document.getElementById('delProfileName').textContent = u;
+               document.getElementById('deleteConfirmOverlay').hidden = false;
+           };
+
+           row.appendChild(btn);
+           row.appendChild(delBtn);
+           list.appendChild(row);
        });
    } else {
        showOnboardingForm();

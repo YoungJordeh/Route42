@@ -26,9 +26,23 @@
     color:var(--text);
     font-family:'Inter', sans-serif;
     -webkit-font-smoothing:antialiased;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
   h1,h2,h3,.num{font-family:'Oswald',sans-serif; margin:0;}
   .app{max-width:1100px; margin:0 auto; padding:24px 20px 60px;}
+
+  /* ---- WELCOME SCREEN ---- */
+  .fullscreen-view {
+    position: fixed; inset: 0; background: var(--bg); z-index: 1000;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 20px; overflow-y: auto; transition: background-color 0.3s ease;
+  }
+  .welcome-card {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 16px;
+    padding: 36px; width: 100%; max-width: 500px; margin: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  }
+  .welcome-card h2 { font-size: 32px; margin-bottom: 8px; color: var(--gold); }
+  .welcome-card .subtitle { color: var(--text-muted); font-size: 14px; line-height: 1.5; margin-bottom: 24px; }
 
   /* ---- HERO ---- */
   .hero{
@@ -37,6 +51,7 @@
     border-radius:18px;
     padding:28px 28px 20px;
     margin-bottom:24px;
+    transition: background 0.3s ease, border-color 0.3s ease;
   }
   .hero-top{display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:16px;}
   .eyebrow{font-size:12px; letter-spacing:.14em; color:var(--gold); font-weight:600; margin-bottom:6px;}
@@ -65,7 +80,7 @@
   }
   .post .dot{
     width:12px; height:12px; border-radius:50%; background:var(--panel-alt); border:2px solid var(--text-muted);
-    z-index:1; transition:transform .15s;
+    z-index:1; transition:transform .15s, background-color 0.3s ease, border-color 0.3s ease;
   }
   .post.done .dot{background:var(--success); border-color:var(--success);}
   .post.adjusted .dot{background:var(--rust); border-color:var(--rust);}
@@ -80,10 +95,28 @@
 
   .card{
     background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:20px 22px; margin-bottom:16px;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
   }
   .card h2{font-size:20px; margin-bottom:4px;}
   .card h3{font-size:14px; letter-spacing:.06em; color:var(--gold); text-transform:uppercase; margin-bottom:14px;}
   .phase-tag{font-size:12px; color:var(--text-muted); margin-bottom:16px;}
+
+  /* ---- AI COACH CARD ---- */
+  .ai-card {
+    background: linear-gradient(135deg, rgba(212,167,44,0.05) 0%, rgba(212,167,44,0.15) 100%);
+    border-color: rgba(212,167,44,0.3);
+  }
+  .ai-card h3 { color: var(--gold); display: flex; align-items: center; gap: 8px;}
+  .ai-output {
+    font-size: 13px; line-height: 1.6; color: var(--text);
+    margin-top: 14px; padding-top: 14px; border-top: 1px dashed rgba(212,167,44,0.3);
+  }
+  .spinner {
+    width: 20px; height: 20px; border: 3px solid rgba(212,167,44,0.3);
+    border-top-color: var(--gold); border-radius: 50%;
+    animation: spin 1s linear infinite; margin: 10px auto;
+  }
+  @keyframes spin { 100% { transform: rotate(360deg); } }
 
   /* ---- SESSIONS & SCORES ---- */
   .session{
@@ -158,6 +191,7 @@
   .btn{
     background:var(--gold); color:#1c1608; border:none; border-radius:8px; padding:8px 14px;
     font-weight:600; font-size:13px; cursor:pointer; white-space:nowrap;
+    transition: background-color 0.2s ease, filter 0.2s ease;
   }
   .btn:hover{filter:brightness(1.08);}
   .btn.secondary{background:transparent; color:var(--text); border:1px solid var(--border);}
@@ -173,11 +207,17 @@
     font-size:13px; padding:4px 8px; text-align:right;
   }
   .profile-row input[type=text] { text-align: left; width:140px; }
+  
+  .color-picker-wrap { display: flex; align-items: center; gap: 6px; }
+  .color-picker-wrap input[type=color] {
+    padding: 0; border: none; border-radius: 4px; width: 28px; height: 26px; cursor: pointer; background: transparent;
+  }
 
   /* ACCORDION */
   details.accordion {
     background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
     margin-bottom: 16px; padding: 10px 14px;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
   }
   details.accordion summary {
     font-size: 14px; font-weight: 600; cursor: pointer; color: var(--gold); outline: none; list-style: none;
@@ -246,7 +286,73 @@
 </style>
 </head>
 <body>
-<div class="app">
+
+<!-- WELCOME SCREEN OVERLAY -->
+<div id="welcomeScreen" class="fullscreen-view" hidden>
+  
+  <div id="profileSelector" class="welcome-card" hidden>
+    <h2>Welkom terug!</h2>
+    <p class="subtitle">Kies je profiel om verder te gaan met je schema:</p>
+    <div id="profileList" style="display:flex; flex-direction:column; gap:10px;"></div>
+    <div style="margin-top:20px; border-top:1px solid var(--border); padding-top:20px;">
+       <button class="btn secondary full" id="showNewProfileBtn">+ Nieuw Profiel Aanmaken</button>
+    </div>
+  </div>
+
+  <div id="onboardingForm" class="welcome-card" hidden>
+    <h2>Welkom bij Route42</h2>
+    <p class="subtitle" style="margin-bottom:20px;">Laten we je schema instellen. Vul hieronder je fysiologische gegevens in:</p>
+    
+    <div class="field">
+      <label>Je naam</label>
+      <input type="text" id="obName" placeholder="Bv. Alex">
+    </div>
+    
+    <div class="grid" style="grid-template-columns:1fr 1fr; gap:10px;">
+       <div class="field">
+         <label>Geslacht</label>
+         <select id="obGender"><option value="man">Man</option><option value="vrouw">Vrouw</option></select>
+       </div>
+       <div class="field">
+         <label>Leeftijd</label>
+         <input type="number" id="obAge" value="30" min="16" max="99">
+       </div>
+    </div>
+
+    <div class="grid" style="grid-template-columns:1fr 1fr; gap:10px;">
+       <div class="field">
+         <label>Rusthartslag (optioneel)</label>
+         <input type="number" id="obRestHr" placeholder="Bv. 55" min="30" max="100">
+       </div>
+       <div class="field">
+         <label>Max HF (optioneel)</label>
+         <input type="number" id="obMaxHr" placeholder="Bv. 195" min="140" max="220">
+       </div>
+    </div>
+
+    <div class="field">
+      <label title="Hoeveel dagen per week wil je lopen?">Aantal trainingsdagen per week (min-max)</label>
+      <div style="display:flex; gap:10px;">
+         <input type="number" id="obMinDays" value="3" min="1" max="7">
+         <input type="number" id="obMaxDays" value="4" min="1" max="7">
+      </div>
+    </div>
+    
+    <div class="field">
+       <label>Kies een app-kleur (thema)</label>
+       <div style="display:flex; align-items:center; gap:10px;">
+          <input type="color" id="obTheme" value="#d4a72c" style="padding:0; border:none; border-radius:4px; width:30px; height:28px; cursor:pointer; background:transparent;">
+          <span style="font-size:12px; color:var(--text-muted);">Jouw unieke accentkleur</span>
+       </div>
+    </div>
+
+    <p style="font-size:12px; color:var(--text-muted); margin:15px 0;">Referentietijden (zoals je recente 5K of 10K tijd) kun je zometeen in het dashboard toevoegen voor een nauwkeurigere pacing.</p>
+
+    <button class="btn full" id="startAppBtn" style="font-size:16px;">Start Mijn Schema</button>
+  </div>
+</div>
+
+<div id="mainApp" class="app" hidden>
 
   <header class="hero">
     <div class="hero-top">
@@ -269,6 +375,17 @@
 
   <div class="grid">
     <section>
+      <!-- AI COACH CARD -->
+      <div class="card ai-card">
+        <h3>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10H12V2z"></path><path d="M12 12 2.1 7.1"></path><path d="M12 12l9.9 4.9"></path></svg>
+          AI Coach Analyse
+        </h3>
+        <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Vraag de Gemini AI voor een diepgaande analyse en motivatie over de huidige week.</p>
+        <button class="btn secondary full small" id="aiCoachBtn">Vraag om week-analyse</button>
+        <div id="aiCoachOutput" class="ai-output" hidden></div>
+      </div>
+
       <div class="card">
         <h2 id="weekTitle">Week —</h2>
         <div class="phase-tag" id="weekPhase"></div>
@@ -326,6 +443,14 @@
             <input type="number" id="userMaxDays" value="4" min="1" max="7" style="width:46px;">
           </div>
         </div>
+
+        <div class="profile-row" style="margin-top:16px; border-top:1px dashed var(--border); padding-top:16px;">
+          <label title="Kies een unieke accentkleur voor de web-app">App Kleurenthema</label>
+          <div class="color-picker-wrap">
+              <input type="color" id="themePicker" value="#d4a72c" title="Kies een kleur">
+              <button class="btn secondary small" id="resetThemeBtn" style="padding: 2px 6px;" title="Herstel standaardkleur">↺</button>
+          </div>
+        </div>
         
         <div style="margin-top:20px; border-top:1px solid var(--border); padding-top:16px;">
             <h4 style="font-family:'Oswald'; font-size:14px; color:var(--text); margin:0 0 8px 0;">Referentietijden</h4>
@@ -341,6 +466,7 @@
         </div>
 
         <button class="btn full" id="calcTimeBtn" style="margin-top:20px;">Profiel opslaan & berekenen</button>
+        <button class="btn secondary full" id="switchProfileBtn" style="margin-top:10px;">Wissel van profiel</button>
       </div>
 
       <details class="accordion">
@@ -365,7 +491,6 @@
   <footer>Route42 · richtlijn op basis van je eigen tijden, geen medisch advies — bouw rustig op en luister naar je lijf.</footer>
 </div>
 
-<!-- Modal: Loggen (Normaal & Extra) -->
 <div class="overlay" id="logOverlay" hidden>
   <div class="modal">
     <h3 id="logModalTitle">Training loggen</h3>
@@ -402,7 +527,6 @@
   </div>
 </div>
 
-<!-- Modal: Referentietijd toevoegen/bewerken -->
 <div class="overlay" id="raceOverlay" hidden>
   <div class="modal">
     <h3 id="raceModalTitle">Referentietijd</h3>
@@ -460,8 +584,70 @@ function defaultUserState(){
     extras: {},
     userExponent: 1.10,
     nextRaceId: 1,
-    dayPrefs: {}
+    dayPrefs: {},
+    themeColor: null 
   };
+}
+
+// ---------- THEME & COLOR LOGIC ----------
+function hexToHSL(hex) {
+  let r = 0, g = 0, b = 0;
+  if (hex.length == 4) {
+    r = parseInt(hex[1] + hex[1], 16);
+    g = parseInt(hex[2] + hex[2], 16);
+    b = parseInt(hex[3] + hex[3], 16);
+  } else if (hex.length == 7) {
+    r = parseInt(hex.substring(1, 3), 16);
+    g = parseInt(hex.substring(3, 5), 16);
+    b = parseInt(hex.substring(5, 7), 16);
+  }
+  r /= 255; g /= 255; b /= 255;
+  let max = Math.max(r, g, b), min = Math.min(r, g, b);
+  let h, s, l = (max + min) / 2;
+  if (max == min) {
+    h = s = 0;
+  } else {
+    let d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+      case g: h = (b - r) / d + 2; break;
+      case b: h = (r - g) / d + 4; break;
+    }
+    h /= 6;
+  }
+  return { h: Math.round(h * 360), s: Math.round(s * 100), l: Math.round(l * 100) };
+}
+
+function applyTheme(hex) {
+    const root = document.documentElement;
+    const picker = document.getElementById('themePicker');
+    
+    if (!hex) {
+        root.style.removeProperty('--bg');
+        root.style.removeProperty('--panel');
+        root.style.removeProperty('--panel-alt');
+        root.style.removeProperty('--text');
+        root.style.removeProperty('--text-muted');
+        root.style.removeProperty('--gold');
+        root.style.removeProperty('--border');
+        if(picker) picker.value = "#d4a72c"; 
+        return;
+    }
+
+    const { h, s, l } = hexToHSL(hex);
+    if(picker) picker.value = hex;
+    
+    let accentL = Math.max(45, Math.min(l, 65));
+    let accentS = Math.max(50, s); 
+
+    root.style.setProperty('--bg', `hsl(${h}, 18%, 10%)`);
+    root.style.setProperty('--panel', `hsl(${h}, 18%, 15%)`);
+    root.style.setProperty('--panel-alt', `hsl(${h}, 18%, 20%)`);
+    root.style.setProperty('--text', `hsl(${h}, 15%, 88%)`);
+    root.style.setProperty('--text-muted', `hsl(${h}, 10%, 65%)`);
+    root.style.setProperty('--gold', `hsl(${h}, ${accentS}%, ${accentL}%)`);
+    root.style.setProperty('--border', `hsla(${h}, 15%, 88%, 0.12)`);
 }
 
 // ---------- UTILS ----------
@@ -657,6 +843,79 @@ function calcPaces(){
   };
 }
 
+// ---------- GEMINI AI COACH INTEGRATION ----------
+async function getAICoachAdvice() {
+  const btn = document.getElementById('aiCoachBtn');
+  const output = document.getElementById('aiCoachOutput');
+  
+  btn.disabled = true;
+  btn.textContent = 'Bezig met analyseren...';
+  output.innerHTML = '<div class="spinner"></div>';
+  output.hidden = false;
+
+  const w = currentPlan[selectedWeekIdx];
+  const p = calcPaces();
+  
+  let weekLogsText = '';
+  if (w && w.sessions) {
+      w.sessions.forEach(s => {
+         const key = sessionKey(w.weekNum, s.idx);
+         const log = state.logs[key];
+         if(log) {
+             weekLogsText += `- ${s.label} (${Math.round(s.km*10)/10}km): ${log.skipped ? 'Overgeslagen' : `Gelopen: ${log.distance}km, Gevoel: ${log.feel}, Gem. Hartslag: ${log.hr || 'Niet ingevuld'}`}\n`;
+         } else {
+             weekLogsText += `- ${s.label} (${Math.round(s.km*10)/10}km): Nog niet gelogd\n`;
+         }
+      });
+      let extraLogs = state.extras && state.extras[w.weekNum] ? state.extras[w.weekNum] : [];
+      extraLogs.forEach(ext => {
+          weekLogsText += `- Extra Training: Gelopen: ${ext.distance}km, Gevoel: ${ext.feel}, Gem. Hartslag: ${ext.hr || 'N/A'}\n`;
+      });
+  }
+
+  const pText = p ? secToTime(p.currentMarathonSec) : 'Onbekend (voeg referenties toe)';
+  
+  const userQuery = `Analyseer de hardloopweek van loper: ${currentUsername} (Leeftijd: ${state.age || 30}).
+  We kijken naar Week ${w ? w.weekNum : '?'} van het marathonschema.
+  Huidige voorspelde marathontijd: ${pText}.
+  
+  Trainingen deze week:
+  ${weekLogsText}
+  
+  Geef een persoonlijke, zeer motiverende, en professionele analyse van de week (maximaal 100 woorden). Geef als afsluiting 1 unieke, concrete trainingstip voor de komende dagen.`;
+
+  const systemPrompt = "Je bent de virtuele AI-coach van Route42, een professionele en inspirerende marathoncoach. Gebruik geen markdown formatting zoals **, gebruik HTML tags <b> of <i> als nadruk nodig is. Wees beknopt, enthousiast en analytisch. Spreek de loper direct aan in de 'je' of 'jij' vorm.";
+
+  try {
+    const apiKey = ""; 
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+    const payload = {
+        contents: [{ parts: [{ text: userQuery }] }],
+        systemInstruction: { parts: [{ text: systemPrompt }] }
+    };
+
+    const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    });
+
+    const result = await response.json();
+    const candidate = result.candidates?.[0];
+    if (candidate && candidate.content?.parts?.[0]?.text) {
+        output.innerHTML = candidate.content.parts[0].text.replace(/\n/g, '<br>');
+    } else {
+        output.innerHTML = "Oeps, je coach kon de analyse niet voltooien. Probeer het later nog eens.";
+    }
+  } catch (err) {
+    output.innerHTML = "Geen netwerkverbinding met de AI Coach. Probeer het later nog eens.";
+    console.error("AI Coach Error:", err);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Vraag om nieuwe analyse';
+  }
+}
+
 function generatePlan(skipBioLoop = false){
   const startDate = new Date(state.startDate+'T00:00:00');
   const raceDate = new Date(state.raceDate+'T00:00:00');
@@ -739,7 +998,7 @@ function generatePlan(skipBioLoop = false){
       let qDetail, qMeta;
       if(isTempo){
         const mins = Math.round(Math.min(35, 15 + weekNum*1.5));
-        qDetail = `${mins} min in tempotempo, in- en uitlopen erbij`;
+        qDetail = `${mins} min in tempo, in- en uitlopen erbij`;
         qMeta = {kind:'tempo', minutes: mins};
       } else {
         const reps = Math.min(9, 4 + Math.floor(weekNum/3));
@@ -832,6 +1091,8 @@ function computeDayPlan(week){
   unassigned.sort((a,b)=>estimateMinutes(b)-estimateMinutes(a));
   const trainable = days.filter(d=>d.status!=='unavailable');
   
+  let hardIdx = null; // Track day of hardest session for rest day logic
+
   unassigned.forEach(s=>{
     const need = estimateMinutes(s);
     const candidates = trainable.filter(d=>!used.has(d.idx));
@@ -855,16 +1116,42 @@ function computeDayPlan(week){
     
     assignment[s.idx] = candidates[0].idx;
     used.add(candidates[0].idx);
+    if(s.idx === 0) hardIdx = candidates[0].idx; // Langste/zwaarste
   });
 
   const leftover = trainable.filter(d=>!used.has(d.idx));
   let restIdx = null, restReason = '';
   if(leftover.length){
+    // Slim restday advies algoritme
+    leftover.sort((a,b)=>{
+      // 1. Dagen zonder 'andere sport' krijgen ABSOLUTE prioriteit voor rust
+      const aHasSport = a.status === 'other_sport';
+      const bHasSport = b.status === 'other_sport';
+      if (aHasSport && !bHasSport) return 1;  
+      if (!aHasSport && bHasSport) return -1; 
+      
+      // 2. Afstand tot de langste training
+      const da = hardIdx==null ? 0 : (a.idx-hardIdx+7)%7;
+      const db = hardIdx==null ? 0 : (b.idx-hardIdx+7)%7;
+      if(da!==db) return da-db;
+      
+      // 3. Als we alleen sportdagen over hebben, pak de lichtste
+      const loadA = aHasSport ? (a.duration||30) : 0;
+      const loadB = bHasSport ? (b.duration||30) : 0;
+      return loadA-loadB;
+    });
+    
     restIdx = leftover[0].idx;
-    restReason = 'er staat verder niets gepland op die dag';
+    if (leftover[0].status === 'other_sport') {
+        restReason = 'alle overige dagen hebben al een activiteit, maar dit is je best mogelijke rustmoment';
+    } else {
+        restReason = (hardIdx!=null && leftover[0].idx!==hardIdx)
+          ? 'zo herstel je optimaal na je langste training van de week'
+          : 'er staat verder niets gepland op die dag';
+    }
   } else {
     const forced = days.find(d=>d.status==='unavailable');
-    if(forced){ restIdx = forced.idx; restReason = 'je kunt die dag toch niet trainen'; }
+    if(forced){ restIdx = forced.idx; restReason = 'je kunt die dag toch al niet trainen'; }
   }
   return {days, assignment, restIdx, restReason};
 }
@@ -963,6 +1250,8 @@ function weekStatus(w){
 
 function render(){
   if(!state) return;
+
+  applyTheme(state.themeColor);
 
   const today = new Date(); today.setHours(0,0,0,0);
   const raceDate = new Date(state.raceDate+'T00:00:00');
@@ -1207,6 +1496,10 @@ function renderWeekPanel(){
      document.getElementById('skipBtn').hidden = true; 
      document.getElementById('logOverlay').hidden = false;
   };
+
+  const aiOutput = document.getElementById('aiCoachOutput');
+  aiOutput.innerHTML = '';
+  aiOutput.hidden = true;
 }
 
 function renderPaces(){
@@ -1330,8 +1623,84 @@ function renderHistory(){
   </table>`;
 }
 
+function finishOnboarding() {
+  save();
+  document.getElementById('welcomeScreen').hidden = true;
+  document.getElementById('mainApp').hidden = false;
+  render();
+}
+
+function showOnboardingForm() {
+  document.getElementById('welcomeScreen').hidden = false;
+  document.getElementById('profileSelector').hidden = true;
+  document.getElementById('onboardingForm').hidden = false;
+  document.getElementById('mainApp').hidden = true;
+}
+
 function setupEventListeners() {
   
+  // -- ONBOARDING & WELCOME --
+  document.getElementById('showNewProfileBtn').onclick = () => {
+    document.getElementById('obName').value = '';
+    showOnboardingForm();
+  };
+
+  document.getElementById('startAppBtn').onclick = () => {
+    const newName = document.getElementById('obName').value.trim();
+    if(!newName) {
+       alert("Vul alsjeblieft een naam in om door te gaan.");
+       return;
+    }
+
+    if(allData[newName] && Object.keys(allData[newName].logs).length > 0) {
+       if(!confirm("Dit profiel bestaat al. Wil je hiermee verder gaan en de gegevens overschrijven?")) return;
+    }
+
+    if (!allData[newName]) {
+        allData[newName] = defaultUserState();
+    }
+    state = allData[newName];
+    currentUsername = newName;
+
+    state.gender = document.getElementById('obGender').value;
+    state.age = parseInt(document.getElementById('obAge').value) || 30;
+    
+    const rHr = document.getElementById('obRestHr').value;
+    state.restHr = rHr ? parseInt(rHr) : null;
+    
+    const mHr = document.getElementById('obMaxHr').value;
+    state.maxHrOverride = mHr ? parseInt(mHr) : null;
+
+    let minD = parseInt(document.getElementById('obMinDays').value) || 3;
+    let maxD = parseInt(document.getElementById('obMaxDays').value) || 4;
+    if(minD > maxD) maxD = minD;
+    state.minDays = Math.max(1, Math.min(7, minD));
+    state.maxDays = Math.max(1, Math.min(7, maxD));
+
+    state.themeColor = document.getElementById('obTheme').value;
+    applyTheme(state.themeColor);
+
+    finishOnboarding();
+  };
+
+  document.getElementById('switchProfileBtn').onclick = () => {
+     window.location.reload(); 
+  };
+
+
+  // -- SIDEBAR SETTINGS --
+  document.getElementById('themePicker').addEventListener('input', (e) => {
+     state.themeColor = e.target.value;
+     applyTheme(state.themeColor);
+     save();
+  });
+  
+  document.getElementById('resetThemeBtn').onclick = () => {
+     state.themeColor = null;
+     applyTheme(null);
+     save();
+  };
+
   document.getElementById('calcTimeBtn').onclick = ()=>{
     const newName = document.getElementById('userName').value.trim() || 'Standaard';
     if(newName !== currentUsername) {
@@ -1465,6 +1834,8 @@ function setupEventListeners() {
     document.getElementById('raceOverlay').hidden = true;
     render();
   };
+  
+  document.getElementById('aiCoachBtn').onclick = getAICoachAdvice;
 }
 
 let activeSession = null;
@@ -1495,7 +1866,7 @@ function openLogModal(week, session){
   document.getElementById('logOverlay').hidden = false;
 }
 
-// ---------- STORAGE ----------
+// ---------- STORAGE & INIT FLOW ----------
 const hasClaudeStorage = typeof window.storage !== 'undefined';
 
 async function save(){
@@ -1540,20 +1911,54 @@ async function load(){
     allData = { 'Standaard': defaultUserState() };
     currentUsername = 'Standaard';
   }
-  
-  state = allData[currentUsername];
-  if(!state.extras) state.extras = {};
-  if(!state.dayPrefs) state.dayPrefs = {};
-  if(typeof state.minDays === 'undefined') state.minDays = 3;
-  if(typeof state.maxDays === 'undefined') state.maxDays = 4;
-  
-  await save();
 }
 
-window.addEventListener('DOMContentLoaded', async () => {
+async function initFlow() {
+   await load();
+   
+   const validUsers = Object.keys(allData).filter(name => {
+      if(name === 'Standaard') {
+          const st = allData[name];
+          if(Object.keys(st.logs).length === 0 && (!st.races || st.races.length === 0)) return false;
+      }
+      return true;
+   });
+
+   if (validUsers.length > 0) {
+       document.getElementById('welcomeScreen').hidden = false;
+       document.getElementById('profileSelector').hidden = false;
+       document.getElementById('onboardingForm').hidden = true;
+       document.getElementById('mainApp').hidden = true;
+
+       const list = document.getElementById('profileList');
+       list.innerHTML = '';
+       validUsers.forEach(u => {
+           const btn = document.createElement('button');
+           btn.className = 'btn secondary full';
+           btn.textContent = u;
+           btn.style.textAlign = 'left';
+           btn.style.padding = '12px 16px';
+           btn.onclick = () => {
+               currentUsername = u;
+               state = allData[currentUsername];
+               
+               if(!state.extras) state.extras = {};
+               if(!state.dayPrefs) state.dayPrefs = {};
+               if(typeof state.minDays === 'undefined') state.minDays = 3;
+               if(typeof state.maxDays === 'undefined') state.maxDays = 4;
+               
+               finishOnboarding();
+           };
+           list.appendChild(btn);
+       });
+   } else {
+       showOnboardingForm();
+   }
+}
+
+window.addEventListener('DOMContentLoaded', () => {
   setupEventListeners();
-  await load();
-  render();
+  initFlow();
 });
 </script>
 </body>

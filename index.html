@@ -2372,11 +2372,15 @@ function setupEventListeners() {
                   state = null;
               }
               
-              const dataToSave = JSON.stringify({ currentUsername, allData });
-              if(typeof window.storage !== 'undefined'){
-                  await window.storage.set(STORAGE_KEY, dataToSave, false);
-              } else {
-                  localStorage.setItem(STORAGE_KEY, dataToSave);
+              try {
+                  const dataToSave = JSON.stringify({ currentUsername, allData });
+                  if(typeof window.storage !== 'undefined' && window.storage.set){
+                      await window.storage.set(STORAGE_KEY, dataToSave, false);
+                  } else {
+                      localStorage.setItem(STORAGE_KEY, dataToSave);
+                  }
+              } catch(err) {
+                  console.warn('Opslaan verwijdering mislukt:', err);
               }
               
               document.getElementById('deleteConfirmOverlay').hidden = true;
@@ -2389,22 +2393,24 @@ function setupEventListeners() {
 // ---------- BOOTSTRAPPING ----------
 async function save(){
   try{
-    allData[currentUsername] = state; 
+    if (state) {
+        allData[currentUsername] = state; 
+    }
     const dataToSave = JSON.stringify({ currentUsername, allData });
-    if(typeof window.storage !== 'undefined'){
+    if(typeof window.storage !== 'undefined' && window.storage.set){
       await window.storage.set(STORAGE_KEY, dataToSave, false);
     } else {
       localStorage.setItem(STORAGE_KEY, dataToSave);
     }
   }catch(err){
-    console.error('Opslaan mislukt', err);
+    console.warn('Opslaan mislukt', err);
   }
 }
 
 async function load(){
   try{
     let raw = null;
-    if(typeof window.storage !== 'undefined'){
+    if(typeof window.storage !== 'undefined' && window.storage.get){
       const res = await window.storage.get(STORAGE_KEY, false);
       if(res && res.value) raw = res.value;
     } else {
@@ -2464,6 +2470,7 @@ async function initFlow() {
            btn.style.flex = '1';
            btn.onclick = () => {
                currentUsername = u;
+               if (!allData[currentUsername]) allData[currentUsername] = defaultUserState();
                state = allData[currentUsername];
                
                if(!state.extras) state.extras = {};

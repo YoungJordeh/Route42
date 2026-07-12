@@ -8,19 +8,23 @@
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg: #17241c;
-    --panel: #22332a;
-    --panel-alt: #2b3e32;
+    --bg: #131d17;
+    --panel: #1e2e24;
+    --panel-alt: #263a2e;
     --text: #efead9;
-    --text-muted: #9aab9a;
+    --text-muted: #8fa093;
     --gold: #d4a72c;
     --rust: #c1502e;
     --success: #6fa287;
-    --border: rgba(239,234,217,0.13);
+    --border: rgba(239,234,217,0.12);
+    
+    /* Threshold Colors */
+    --color-aet: #4ade80;
+    --color-cs: #facc15;
+    --color-vo2: #f87171;
   }
   *{box-sizing:border-box;}
   
-  /* Font enforced globally to prevent serif fallbacks on inputs/buttons */
   body, input, select, button, textarea {
     margin:0;
     background:var(--bg);
@@ -156,42 +160,69 @@
     margin-top:12px; font-size:13px; color:var(--gold); background:rgba(212,167,44,.1);
     border:1px solid rgba(212,167,44,.3); border-radius:10px; padding:10px 12px; line-height:1.5;
   }
+
+  /* ---- PROFILE ---- */
+  .profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .profile-col { display: flex; flex-direction: column; gap: 4px; }
+  .profile-col label { 
+    font-size: 11px; color: var(--text-muted); text-transform: uppercase; 
+    letter-spacing: 0.05em; min-height: 28px; display:flex; align-items:flex-end; padding-bottom:2px;
+  }
+  .profile-col input[type=text], .profile-col input[type=number], .profile-col select {
+    background: var(--panel-alt); border: 1px solid var(--border); border-radius: 6px; color: var(--text);
+    font-size: 13px; padding: 6px 8px; width: 100%;
+  }
+
   .btn{
     background:var(--gold); color:#1c1608; border:none; border-radius:8px; padding:8px 14px;
-    font-weight:600; font-size:13px; cursor:pointer; white-space:nowrap;
+    font-weight:600; font-size:13px; cursor:pointer; white-space:nowrap; transition: filter 0.15s;
   }
   .btn:hover{filter:brightness(1.08);}
   .btn.secondary{background:transparent; color:var(--text); border:1px solid var(--border);}
   .btn.small{padding:5px 10px; font-size:12px;}
   .btn.full{width:100%; margin-top:10px; padding:10px; text-align:center;}
+  .btn.danger{color:var(--rust); border-color:rgba(193,80,46,.4);}
+  .btn.danger:hover{background:rgba(193,80,46,.1);}
 
-  /* ---- PROFILE & ZONES ---- */
-  .profile-row{display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;}
-  .profile-row label{font-size:13px; color:var(--text-muted);}
-  .profile-row input[type=number], .profile-row select{
-    width:80px; background:var(--bg); border:1px solid var(--border); border-radius:6px; color:var(--text);
-    font-size:13px; padding:4px 8px; text-align:right;
-  }
+  /* ---- COLLAPSIBLE PHYSIO ZONES ---- */
+  .physio-details summary { padding: 20px 22px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; list-style: none; }
+  .physio-details summary::-webkit-details-marker { display: none; }
+  .physio-details summary h3 { margin-bottom: 0; }
+  .physio-details .icon { transition: transform 0.2s; font-size:12px; color:var(--text-muted); }
+  .physio-details[open] .icon { transform: rotate(180deg); }
+  .physio-details .details-content { padding: 0 22px 20px; border-top: 1px solid var(--border); margin-top: -5px; padding-top: 16px; }
 
+  /* ---- THRESHOLDS DASHBOARD ---- */
+  .thresh-card { background: var(--panel-alt); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 12px; }
+  .thresh-head { display: flex; align-items: center; font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 4px; }
+  .thresh-dot { width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+  .thresh-dot.aet { background: var(--color-aet); box-shadow: 0 0 6px rgba(74, 222, 128, 0.4); }
+  .thresh-dot.cs { background: var(--color-cs); box-shadow: 0 0 6px rgba(250, 204, 21, 0.4); }
+  .thresh-dot.vo2 { background: var(--color-vo2); box-shadow: 0 0 6px rgba(248, 113, 113, 0.4); }
+  .thresh-val { font-family: 'Oswald'; font-size: 22px; font-weight: 600; color: var(--text); }
+  
+  /* ---- HR ZONES ---- */
   .zone-row{display:flex; justify-content:space-between; font-size:13px; padding:6px 0; border-bottom:1px solid var(--border);}
   .zone-row:last-child{border-bottom:none;}
   .zone-row .z-name{color:var(--text-muted);}
   .zone-row .z-bpm{font-family:'Oswald'; font-weight:600;}
 
-  /* ---- PACES ---- */
-  .pace-row{display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--border); font-size:14px;}
-  .pace-row:last-child{border-bottom:none;}
-  .pace-row .label{color:var(--text-muted);}
-  .pace-row .val{font-family:'Oswald'; font-weight:600;}
-  .prediction{margin-top:14px; padding-top:14px; border-top:1px dashed var(--border); font-size:13px; color:var(--text-muted); line-height:1.5;}
-  .prediction strong{color:var(--gold); font-family:'Oswald'; font-size:16px;}
+  /* ---- PREDICTION DASHBOARD ---- */
+  .pred-dash { background: var(--panel-alt); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom:16px; display: flex; justify-content: space-between; align-items: center; }
+  .pred-col { text-align: center; flex: 1; }
+  .pred-time { font-family: 'Oswald'; font-size: 26px; font-weight: 700; line-height:1.1; }
+  .pred-pace { font-size: 12px; color: var(--text-muted); margin-top:2px; }
+  .pred-divider { font-size: 20px; font-weight:bold; color: var(--text-muted); margin: 0 10px; }
+  .pred-label { font-size: 11px; color: var(--success); letter-spacing: 0.05em; margin-bottom: 8px; text-transform: uppercase; font-weight:600;}
 
   /* ---- RACES LIST ---- */
   .race-item{display:flex; justify-content:space-between; align-items:center; font-size:13px; padding:7px 0; border-bottom:1px solid var(--border);}
   .race-item:last-child{border-bottom:none;}
   .race-item .rd{color:var(--text-muted); font-size:11px; display:block; margin-top:2px;}
-  .del-btn{background:transparent; border:none; color:var(--rust); cursor:pointer; padding:4px; font-size:14px;}
-  .del-btn:hover{color:#e86441;}
+  .action-btns{display:flex; gap:4px;}
+  .icon-btn{background:transparent; border:none; color:var(--text-muted); cursor:pointer; padding:4px; font-size:14px; transition:color 0.15s;}
+  .icon-btn.del:hover{color:var(--rust);}
+  .icon-btn.edit:hover{color:var(--gold);}
 
   /* ---- HISTORY ---- */
   table{width:100%; border-collapse:collapse; font-size:13px;}
@@ -231,7 +262,7 @@
     <div class="hero-top">
       <div>
         <div class="eyebrow">MARATHONTRAINING</div>
-        <h1>Route42</h1>
+        <h1 id="greetingMsg">Route42</h1>
         <div class="subtitle">Van bijna niks naar 42,195 km — adaptief schema o.b.v. Karvonen-hartslag.</div>
       </div>
       <div class="countdown">
@@ -273,39 +304,62 @@
 
     <aside>
       <div class="card">
-        <h3>Lopersprofiel</h3>
-        <div class="profile-row">
-          <label>Geslacht</label>
-          <select id="userGender">
-            <option value="man">Man</option>
-            <option value="vrouw">Vrouw</option>
-          </select>
+        <h3>Atletisch profiel & Planning</h3>
+        <div class="profile-col" style="margin-bottom:12px;">
+          <label style="min-height:auto;">Voornaam</label>
+          <input type="text" id="userName" placeholder="Bv. Alex">
         </div>
-        <div class="profile-row">
-          <label>Leeftijd</label>
-          <input type="number" id="userAge" value="30" min="16" max="99">
+        <div class="profile-grid">
+          <div class="profile-col">
+            <label>Gewicht (kg)</label>
+            <input type="number" id="userWeight" placeholder="79">
+          </div>
+          <div class="profile-col">
+            <label>Lengte (cm)</label>
+            <input type="number" id="userHeight" placeholder="182">
+          </div>
+          <div class="profile-col">
+            <label>Leeftijd</label>
+            <input type="number" id="userAge" placeholder="30" min="16" max="99">
+          </div>
+          <div class="profile-col">
+            <label>Geslacht</label>
+            <select id="userGender">
+              <option value="man">Man</option>
+              <option value="vrouw">Vrouw</option>
+              <option value="anders">Anders</option>
+            </select>
+          </div>
+          <div class="profile-col" style="grid-column: span 2;">
+            <label style="min-height:auto;">Dagen per week trainen</label>
+            <select id="userTrainDays">
+              <option value="3">3 dagen (Focus op lange duurloop & interval)</option>
+              <option value="4">4 dagen (Aanbevolen voor marathon)</option>
+              <option value="5">5 dagen (Voor lopers met solide basis)</option>
+            </select>
+          </div>
+          <div class="profile-col" style="grid-column: span 2;">
+            <label style="min-height:auto;">Opbouwtempo</label>
+            <select id="userBuildUp">
+              <option value="rustig">🌅 Rustige start (Laagste blessurerisico)</option>
+              <option value="stabiel">📊 Stabiele opbouw (Evenwichtig, standaard)</option>
+              <option value="vliegend">🚀 Vliegende start (Hogere intensiteit vanaf week 1)</option>
+            </select>
+          </div>
         </div>
-        <div class="profile-row">
-          <label title="Voor nauwkeurigere zones">Rusthartslag (opt.)</label>
-          <input type="number" id="userRestHr" placeholder="Bv. 55" min="30" max="100">
+        
+        <h4 style="font-size:11px; color:var(--text-muted); text-transform:uppercase; margin:16px 0 8px;">Hartslagdata</h4>
+        <div class="profile-grid">
+          <div class="profile-col">
+            <label title="Voor nauwkeurigere zones">Rusthartslag (BPM)</label>
+            <input type="number" id="userRestHr" placeholder="Bv. 45" min="30" max="100">
+          </div>
+          <div class="profile-col">
+            <label title="Laat leeg voor standaard formule">Max HF (overschrijven)</label>
+            <input type="number" id="userMaxHr" placeholder="Bv. 188" min="140" max="220">
+          </div>
         </div>
-        <div class="profile-row">
-          <label title="Laat leeg voor standaard formule">Max HF (overschrijven)</label>
-          <input type="number" id="userMaxHr" placeholder="Bv. 195" min="140" max="220">
-        </div>
-        <button class="btn full" id="calcTimeBtn">Bereken Tijd & Schema</button>
-      </div>
-
-      <div class="card">
-        <h3>Hartslagzones (BPM)</h3>
-        <div class="phase-tag" style="margin-bottom:8px;">Max HF berekend op: <strong id="maxHrDisplay">—</strong><br><span id="hrFormulaMsg"></span></div>
-        <div id="hrZonesWrap"></div>
-      </div>
-
-      <div class="card">
-        <h3>Jouw tempo's</h3>
-        <div id="paces"></div>
-        <div class="prediction" id="prediction"></div>
+        <button class="btn full" id="calcTimeBtn">Profiel Opslaan & Herberekenen</button>
       </div>
 
       <div class="card">
@@ -320,6 +374,30 @@
         <div id="racesList"></div>
         <button class="btn secondary small" id="addRaceBtn" style="margin-top:10px; width:100%;">+ Andere afstand toevoegen</button>
       </div>
+
+      <div class="card">
+        <h3>Wedstrijdvoorspelling</h3>
+        <div class="pred-label">• Gekalibreerd op basis van jouw logs</div>
+        <div id="predictionBox"></div>
+      </div>
+
+      <div class="card" style="padding:0;">
+        <details class="physio-details" open>
+          <summary>
+            <h3>Zones & Thresholds</h3>
+            <span class="icon">▼</span>
+          </summary>
+          <div class="details-content">
+            <h4 style="font-size:11px; color:var(--text-muted); text-transform:uppercase; margin:0 0 8px;">Thresholds (Drempels)</h4>
+            <div id="thresholdsList"></div>
+            
+            <h4 style="font-size:11px; color:var(--text-muted); text-transform:uppercase; margin:20px 0 8px;">Hartslagzones (BPM)</h4>
+            <div class="phase-tag" style="margin-bottom:8px;">Max HF berekend op: <strong id="maxHrDisplay">—</strong><br><span id="hrFormulaMsg"></span></div>
+            <div id="hrZonesWrap"></div>
+          </div>
+        </details>
+      </div>
+
     </aside>
   </div>
 
@@ -363,10 +441,11 @@
   </div>
 </div>
 
-<!-- Modal: Referentietijd toevoegen -->
+<!-- Modal: Referentietijd toevoegen/bewerken -->
 <div class="overlay" id="raceOverlay" hidden>
   <div class="modal">
     <h3 id="raceModalTitle">Referentietijd toevoegen</h3>
+    <input type="hidden" id="editRaceId">
     <div class="field">
       <label>Afstand (km)</label>
       <input type="number" step="0.1" id="raceDistance" value="10">
@@ -378,8 +457,8 @@
     <div class="field">
       <label>Invoertype</label>
       <select id="raceInputType">
-        <option value="time">Totale Tijd (bv. 46:22 of 1:46:22)</option>
-        <option value="pace">Gemiddeld Tempo (bv. 4:38)</option>
+        <option value="time">Totale tijd (bv. 46:22 of 1:46:22)</option>
+        <option value="pace">Gemiddeld tempo (bv. 4:38)</option>
       </select>
     </div>
     <div class="field">
@@ -392,7 +471,7 @@
     </div>
     <div class="modal-actions">
       <button class="btn secondary" id="cancelRaceBtn">Annuleren</button>
-      <button class="btn" id="saveRaceBtn">Toevoegen</button>
+      <button class="btn" id="saveRaceBtn">Opslaan</button>
     </div>
   </div>
 </div>
@@ -401,32 +480,37 @@
 const STORAGE_KEY = 'route42-state';
 const DAY = 86400000;
 
+// Multi-user architecture
+let appData = null; 
+let state = null; // Wijst naar de actieve gebruiker
+
 function defaultState(){
   return {
+    userName: '',
     startDate: '2026-07-13',
     raceDate: '2026-10-18',
-    age: 30,
+    age: 30, // Default changed back to Age, empty races array
+    weight: 79,
+    height: 182,
     gender: 'man',
+    trainDays: 4,
+    buildUp: 'stabiel',
     restHr: null, 
     maxHrOverride: null,
-    races: [
-      {id:'r3', distance:7.5, date:'2026-07-09', timeSec: 35*60+30, hr: 146}
-    ],
+    races: [], 
     logs: {},
     extras: {},
     userExponent: 1.10,
-    nextRaceId: 4,
+    nextRaceId: 1,
     dayPrefs: {}
   };
 }
-
-let state = null;
 
 // ---------- UTILS ----------
 function secToPace(sec){
   sec = Math.round(sec);
   const m = Math.floor(sec/60), s = sec%60;
-  return `${m}:${String(s).padStart(2,'0')}/km`;
+  return `${m}:${String(s).padStart(2,'0')}`;
 }
 function secToTime(sec){
   sec = Math.round(sec);
@@ -449,35 +533,32 @@ function fmtDate(d){
 // ---------- SCORE LOGIC ----------
 function calcSessionScore(log, targetKm, targetZoneNum) {
   if (log.skipped) return 0;
-  let score = 7.5; // Basisbeloning voor het in de schoenen stappen
+  let score = 7.5; 
   
-  // Afstand check (behalve bij extra ongedefinieerde trainingen)
   if (targetKm) {
     let ratio = log.distance / targetKm;
     if (ratio >= 0.95 && ratio <= 1.05) score += 1;
     else if (ratio >= 0.8 && ratio < 0.95) score += 0.5;
     else if (ratio < 0.8) score -= 1.5;
-    else if (ratio > 1.2) score -= 1; // Onafgesproken overreach
+    else if (ratio > 1.2) score -= 1; 
   }
   
-  // Gevoel check
   if (log.feel === 'right') score += 0.5;
   else if (log.feel === 'easy') score += 1.0;
   else if (log.feel === 'hard') score -= 0.5;
 
-  // HR Check
   if (log.hr && targetZoneNum) {
     let zone = getHrZone(targetZoneNum);
     if (log.hr >= zone.low && log.hr <= zone.high) {
-        score += 1.5; // Perfect in zone
+        score += 1.5; 
     } else if (log.hr > zone.high) {
-        score -= 1.5; // Te hard gegaan
+        score -= 1.5; 
     } else if (log.hr < zone.low) {
-        if (targetZoneNum >= 4) score -= 1.0; // Interval/Tempo target niet gehaald
-        else score += 1.0; // Herstel/Duurloop erg laag gehouden, heel goed!
+        if (targetZoneNum >= 4) score -= 1.0; 
+        else score += 1.0; 
     }
   } else {
-    score += 0.5; // Bonusje als je hem voltooid hebt zonder HR meter
+    score += 0.5; 
   }
   
   return Math.min(10, Math.max(1, score));
@@ -493,7 +574,7 @@ function getTargetZoneNum(s) {
   if (s.type === 'quality') return s.meta.kind === 'tempo' ? 4 : 5;
   if (s.type === 'long') return s.meta.kind === 'race' ? 4 : 2;
   if (s.type === 'easy') return s.meta.kind === 'recovery' ? 1 : 2;
-  return 2; // Default for extra runs
+  return 2; 
 }
 
 // ---------- PHYSIOLOGICAL ADAPTATION ----------
@@ -518,8 +599,9 @@ function updateAdjustmentFactor(){
 
 function calculateMaxHr(){
   if(state.maxHrOverride) return state.maxHrOverride;
-  if(state.gender === 'vrouw') return 226 - (state.age || 30);
-  return 220 - (state.age || 30);
+  const age = state.age || 30;
+  if(state.gender === 'vrouw' || state.gender === 'anders') return 226 - age;
+  return 220 - age;
 }
 
 function getHrZone(zoneNum) {
@@ -640,7 +722,9 @@ function generatePlan(skipBioLoop = false){
   const totalDays = Math.max(daysBetween(startDate, raceDate), 7);
   const totalWeeks = Math.max(6, Math.ceil(totalDays/7));
   const taperWeeks = 2;
-  const startLR = 6;
+  
+  const buildUp = state.buildUp || 'stabiel';
+  const startLR = buildUp === 'rustig' ? 5 : (buildUp === 'vliegend' ? 8 : 6);
   const peakWeekIndex = totalWeeks - taperWeeks - 1;
   const peakLR = Math.min(32, 14 + peakWeekIndex);
   
@@ -655,6 +739,9 @@ function generatePlan(skipBioLoop = false){
       else if(log.feel === 'easy') vFactor += 0.025;
   }
   vFactor = Math.max(0.75, Math.min(1.25, vFactor));
+
+  if (buildUp === 'rustig') vFactor *= 0.95;
+  if (buildUp === 'vliegend') vFactor *= 1.05;
 
   const weeks = [];
   for(let i=0;i<totalWeeks;i++){
@@ -683,13 +770,16 @@ function generatePlan(skipBioLoop = false){
       if(lr > 34) lr = 34; 
     }
 
-    const runDays = isRaceWeek ? 1 : (i<2 ? 3 : (isTaper ? 3 : 4));
+    let prefDays = parseInt(state.trainDays) || 4;
+    let runDays = isRaceWeek ? 1 : prefDays;
+    if (isTaper && runDays > 3) runDays--;
+
     const sessions = [];
 
     if(isRaceWeek){
       sessions.push({idx:0, type:'long', label:'Marathon', detail:`De grote dag — ${lr} km`, km: 42.195, meta:{kind:'race'}});
     } else {
-      sessions.push({idx:0, type:'long', label:'Lange duurloop', detail:'Rustig tempo, bouw de laatste kilometers eventueel iets op', km: lr, meta:{kind:'longrun'}});
+      sessions.push({idx:0, type:'long', label:'Lange duurloop', detail:'Rustig tempo', km: lr, meta:{kind:'longrun'}});
 
       const isTempo = weekNum % 2 === 1;
       let qKm = Math.max(4, Math.round((lr*0.35 + 2)*vFactor));
@@ -700,15 +790,19 @@ function generatePlan(skipBioLoop = false){
         qMeta = {kind:'tempo', minutes: mins};
       } else {
         const reps = Math.min(9, 4 + Math.floor(weekNum/3));
-        qDetail = `${reps} × 3 min op intervaltempo, 2 min rustig herstel`;
+        qDetail = `${reps} × 3 min intervaltempo, 2 min herstel`;
         qMeta = {kind:'interval', reps, hardMin:3, restMin:2};
       }
       sessions.push({idx:1, type:'quality', label: isTempo?'Tempotraining':'Intervaltraining', detail:qDetail, km:qKm, meta:qMeta});
 
       const easyKm = Math.max(4, Math.round(lr*0.28*vFactor));
-      sessions.push({idx:2, type:'easy', label:'Rustige duurloop', detail:'Makkelijk tempo, blijf onder je duurlooptempo', km:easyKm, meta:{kind:'easy'}});
-      if(runDays>=4){
+      sessions.push({idx:2, type:'easy', label:'Rustige duurloop', detail:'Makkelijk tempo, blijf in je zone', km:easyKm, meta:{kind:'easy'}});
+      
+      if(runDays >= 4){
         sessions.push({idx:3, type:'easy', label:'Herstelloop', detail:'Kort en heel rustig', km: Math.max(4, Math.round(easyKm*0.7)), meta:{kind:'recovery'}});
+      }
+      if(runDays >= 5){
+        sessions.push({idx:4, type:'easy', label:'Extra basisloop', detail:'Pure aerobe opbouw', km: Math.max(4, Math.round(easyKm*0.8)), meta:{kind:'easy'}});
       }
     }
 
@@ -752,11 +846,10 @@ function computeDayPlan(week){
     days.push({idx:i, date:new Date(week.weekStart.getTime()+i*DAY), status:prefs[i].status, duration:prefs[i].duration});
   }
   
-  const idealMapping = { 0: 6, 1: 1, 2: 3, 3: 5 };
+  const idealMapping = { 0: 6, 1: 1, 2: 3, 3: 5, 4: 2 };
   const used = new Set();
   const assignment = {};
 
-  // 1. Eerst de gelogde trainingen vastprikken op de gekozen datum
   week.sessions.forEach(s => {
     const key = sessionKey(week.weekNum, s.idx);
     const log = state.logs[key];
@@ -771,7 +864,6 @@ function computeDayPlan(week){
     }
   });
   
-  // 2. Daarna overgebleven trainingen verdelen
   const unassigned = [...week.sessions].filter(s => assignment[s.idx] === undefined);
   unassigned.sort((a,b)=>estimateMinutes(b)-estimateMinutes(a));
   
@@ -862,15 +954,15 @@ function renderDayPrefs(week){
 function sessionPaceLabel(s, p){
   if(!p) return 'Voeg een tijd toe bij "Referentietijden" om je tempo te zien';
   if(s.type==='long'){
-    if(s.meta.kind==='race') return `Doeltempo: ${secToPace(p.currentMarathonSec/42.195)}`;
-    return `Tempo: ${secToPace(p.easyLow)} – ${secToPace(p.easyHigh)}`;
+    if(s.meta.kind==='race') return `Doeltempo: ${secToPace(p.currentMarathonSec/42.195)}/km`;
+    return `Tempo: ${secToPace(p.easyLow)} – ${secToPace(p.easyHigh)}/km`;
   }
   if(s.type==='easy'){
-    if(s.meta.kind==='recovery') return `Tempo: ${secToPace(p.easyHigh)} – ${secToPace(p.easyHigh+20)} (extra rustig)`;
-    return `Tempo: ${secToPace(p.easyLow)} – ${secToPace(p.easyHigh)}`;
+    if(s.meta.kind==='recovery') return `Tempo: ${secToPace(p.easyHigh)} – ${secToPace(p.easyHigh+20)}/km (extra rustig)`;
+    return `Tempo: ${secToPace(p.easyLow)} – ${secToPace(p.easyHigh)}/km`;
   }
   if(s.type==='extra') return `Tempo: Herstel / Zone 1`;
-  if(s.meta.kind==='tempo') return `Tempo: ${secToPace(p.thresholdPace)}`;
+  if(s.meta.kind==='tempo') return `Tempo: ${secToPace(p.thresholdPace)}/km`;
   if(s.meta.kind==='interval') return `Tempo: zie blokken hieronder`;
   return null;
 }
@@ -884,7 +976,7 @@ function renderIntervalBlocks(s, p){
   for(let i=0;i<s.meta.reps;i++){
     chips += `<span class="block hard">${s.meta.hardMin}′ hard</span><span class="block rest">${s.meta.restMin}′ rustig</span>`;
   }
-  return `<div class="blocks"><span class="legend">Hard @ ${hardPace} (${z5.low}-${z5.high} BPM) · Rustig @ ${restPace} (${z2.low}-${z2.high} BPM)</span>${chips}</div>`;
+  return `<div class="blocks"><span class="legend">Hard @ ${hardPace}/km (${z5.low}-${z5.high} BPM) · Rustig @ ${restPace}/km (${z2.low}-${z2.high} BPM)</span>${chips}</div>`;
 }
 
 let currentPlan = [];
@@ -916,6 +1008,8 @@ function weekStatus(w){
 function render(){
   const today = new Date(); today.setHours(0,0,0,0);
   const raceDate = new Date(state.raceDate+'T00:00:00');
+  
+  document.getElementById('greetingMsg').textContent = state.userName && state.userName !== 'Gast' ? `Welkom terug, ${state.userName}!` : 'Route42';
   document.getElementById('daysLeft').textContent = Math.max(0, daysBetween(today, raceDate));
   document.getElementById('raceDateInput').value = state.raceDate;
   document.getElementById('startDateInput').value = state.startDate;
@@ -953,41 +1047,22 @@ function render(){
   if(selectedWeekIdx===null) selectedWeekIdx = curIdx;
   
   renderProfile();
-  renderHRZones();
   renderWeekPanel();
-  renderPaces();
+  renderThresholdsZonesAndPredictions();
   renderRaces();
   renderHistory();
 }
 
 function renderProfile(){
+  document.getElementById('userName').value = state.userName && state.userName !== 'Gast' ? state.userName : '';
   document.getElementById('userGender').value = state.gender || 'man';
   document.getElementById('userAge').value = state.age || 30;
+  document.getElementById('userWeight').value = state.weight || 79;
+  document.getElementById('userHeight').value = state.height || 182;
+  document.getElementById('userTrainDays').value = state.trainDays || 4;
+  document.getElementById('userBuildUp').value = state.buildUp || 'stabiel';
   document.getElementById('userRestHr').value = state.restHr || '';
   document.getElementById('userMaxHr').value = state.maxHrOverride || '';
-}
-
-function renderHRZones(){
-  const maxHr = calculateMaxHr();
-  document.getElementById('maxHrDisplay').textContent = maxHr;
-  
-  const msg = state.maxHrOverride ? 'Handmatig ingevoerd' : (state.restHr ? 'Berekend met Karvonen-formule' : (state.gender==='vrouw' ? 'Formule: 226 - leeftijd' : 'Formule: 220 - leeftijd'));
-  document.getElementById('hrFormulaMsg').textContent = msg;
-
-  const wrap = document.getElementById('hrZonesWrap');
-  const z1 = getHrZone(1);
-  const z2 = getHrZone(2);
-  const z3 = getHrZone(3);
-  const z4 = getHrZone(4);
-  const z5 = getHrZone(5);
-
-  wrap.innerHTML = `
-    <div class="zone-row"><span class="z-name">Z1: Minimale vetverbranding</span><span class="z-bpm">${z1.low} - ${z1.high}</span></div>
-    <div class="zone-row"><span class="z-name">Z2: Vetverbranding</span><span class="z-bpm">${z2.low} - ${z2.high}</span></div>
-    <div class="zone-row"><span class="z-name">Z3: Cardiovasculair</span><span class="z-bpm">${z3.low} - ${z3.high}</span></div>
-    <div class="zone-row"><span class="z-name">Z4: Prestatie verhogend</span><span class="z-bpm">${z4.low} - ${z4.high}</span></div>
-    <div class="zone-row"><span class="z-name">Z5: Uithoudingsvermogen</span><span class="z-bpm">${z5.low} - ${z5.high}</span></div>
-  `;
 }
 
 function renderWeekPanel(){
@@ -1002,7 +1077,6 @@ function renderWeekPanel(){
   const wrap = document.getElementById('sessions');
   wrap.innerHTML = '';
   
-  // Combineer geplande sessies met extra gelogde sessies voor deze week
   let allSessions = [...w.sessions];
   let extraLogs = state.extras && state.extras[w.weekNum] ? state.extras[w.weekNum] : [];
   extraLogs.forEach((ext, i) => {
@@ -1018,16 +1092,20 @@ function renderWeekPanel(){
       });
   });
 
+  const weekStartTime = w.weekStart.getTime();
   const sortedSessions = allSessions.sort((a, b) => {
-    // Extras without planned day will go to the bottom unless they have a log date
-    const getDayVal = (s) => {
-        if(s.isExtra && s.logData.date) return new Date(s.logData.date).getDay() || 7;
-        const key = sessionKey(w.weekNum, s.idx);
-        const lg = state.logs[key];
-        if(lg && !lg.skipped && lg.date) return new Date(lg.date).getDay() || 7;
-        return dayPlan.assignment[s.idx] !== undefined ? dayPlan.assignment[s.idx] : 99;
+    const getTimestamp = (s) => {
+        let logData = s.isExtra ? s.logData : state.logs[sessionKey(w.weekNum, s.idx)];
+        if (logData && !logData.skipped && logData.date) {
+            return new Date(logData.date).getTime() + (s.isExtra ? 999 : s.idx); 
+        }
+        let assignedDay = dayPlan.assignment[s.idx];
+        if (assignedDay !== undefined) {
+            return weekStartTime + (assignedDay * DAY) + (s.isExtra ? 999 : s.idx);
+        }
+        return weekStartTime + (7 * DAY) + (s.isExtra ? 999 : s.idx);
     };
-    return getDayVal(a) - getDayVal(b);
+    return getTimestamp(a) - getTimestamp(b);
   });
 
   let totalScore = 0, scoreCount = 0, skips = 0;
@@ -1049,7 +1127,7 @@ function renderWeekPanel(){
     const row = document.createElement('div');
     row.className = 'session';
     
-    let statusHtml, actionHtml, dayBadgeHtml = '';
+    let statusHtml, dayBadgeHtml = '';
     
     if(log && !log.skipped && log.date){
        const d = new Date(log.date);
@@ -1068,15 +1146,12 @@ function renderWeekPanel(){
 
     if(log && log.skipped){
       statusHtml = `<div class="session-status skipped">Overgeslagen</div>`;
-      actionHtml = `<button class="btn secondary small" data-key="${key}" data-week="${w.weekNum}" data-idx="${s.idx}">Alsnog loggen</button>`;
     } else if(log){
       const logHrDisplay = log.hr ? ` · ❤️ ${log.hr} BPM` : '';
       const scoreBadge = score ? `<span class="score-badge ${getScoreColorClass(score)}">Cijfer: ${score.toFixed(1)}</span>` : '';
       statusHtml = `<div class="session-status done">${log.distance} km${log.minutes?` · ${log.minutes} min`:''}${logHrDisplay}<br>${scoreBadge}</div>`;
-      actionHtml = isExtra ? '' : `<button class="btn secondary small" data-key="${key}" data-week="${w.weekNum}" data-idx="${s.idx}">Bewerken</button>`;
     } else {
       statusHtml = `<div class="session-status">Nog niet gelogd</div>`;
-      actionHtml = `<button class="btn small" data-key="${key}" data-week="${w.weekNum}" data-idx="${s.idx}">Loggen</button>`;
     }
     
     const paceLabel = sessionPaceLabel(s, p);
@@ -1095,24 +1170,50 @@ function renderWeekPanel(){
         ${hrHtml}
         ${blocksHtml}
       </div>
-      ${statusHtml}
+      <div class="session-status-wrap" style="text-align:right;">
+        ${statusHtml}
+        <div class="actions" style="margin-top:6px; display:flex; gap:6px; justify-content:flex-end;"></div>
+      </div>
     `;
+
+    const actionsWrap = row.querySelector('.actions');
     
-    if(actionHtml) {
-        const actionDiv = document.createElement('div');
-        actionDiv.innerHTML = actionHtml;
-        const btn = actionDiv.firstChild;
-        btn.onclick = ()=> openLogModal(w, s);
-        row.appendChild(btn);
+    if (log) {
+       const editBtn = document.createElement('button');
+       editBtn.className = 'btn secondary small';
+       editBtn.textContent = log.skipped ? 'Alsnog loggen' : 'Bewerken';
+       editBtn.onclick = () => openLogModal(w, s);
+       actionsWrap.appendChild(editBtn);
+
+       const resetBtn = document.createElement('button');
+       resetBtn.className = 'btn secondary small danger';
+       resetBtn.textContent = 'Herstellen';
+       resetBtn.title = 'Sessie resetten / Verwijderen';
+       resetBtn.onclick = () => {
+           if(isExtra) {
+               state.extras[w.weekNum] = state.extras[w.weekNum].filter(x => x.id !== log.id);
+           } else {
+               delete state.logs[key];
+           }
+           updateAdjustmentFactor();
+           save();
+           render();
+       };
+       actionsWrap.appendChild(resetBtn);
+    } else {
+       const logBtn = document.createElement('button');
+       logBtn.className = 'btn small';
+       logBtn.textContent = 'Loggen';
+       logBtn.onclick = () => openLogModal(w, s);
+       actionsWrap.appendChild(logBtn);
     }
+
     wrap.appendChild(row);
   });
 
-  // Calculate Week Score
   let weekScoreDisplay = document.getElementById('weekScoreDisplay');
   if(scoreCount > 0) {
       let weekAvg = totalScore / scoreCount;
-      // Straf voor overslaan of zwaar overtrainen
       weekAvg -= (skips * 1.0);
       if(extraLogs.length > 0 && w.runDays >= 4) weekAvg -= (extraLogs.length * 1.0);
       
@@ -1122,7 +1223,6 @@ function renderWeekPanel(){
       weekScoreDisplay.innerHTML = '';
   }
 
-  // Extra knop waarschuwing setup
   document.getElementById('addExtraBtn').onclick = () => {
      activeSession = { week: w, session: null, isExtra: true };
      document.getElementById('logModalTitle').textContent = `Extra Training — Week ${w.weekNum}`;
@@ -1139,47 +1239,80 @@ function renderWeekPanel(){
          warnEl.hidden = true;
      }
      
-     document.getElementById('skipBtn').hidden = true; // Je kunt een onbestaande extra loop niet "overslaan"
+     document.getElementById('skipBtn').hidden = true; 
      document.getElementById('logOverlay').hidden = false;
   };
 }
 
-function renderPaces(){
+function renderThresholdsZonesAndPredictions(){
   const p = calcPaces();
-  const el = document.getElementById('paces');
-  const pred = document.getElementById('prediction');
+  const threshEl = document.getElementById('thresholdsList');
+  const predBox = document.getElementById('predictionBox');
+  const hrWrap = document.getElementById('hrZonesWrap');
+  
   if(!p){
-    el.innerHTML = '<div class="empty-state">Voeg een tijd toe om je tempo\'s te berekenen.</div>';
-    pred.innerHTML = '';
+    threshEl.innerHTML = '<div class="empty-state">Voeg een tijd toe om je thresholds te berekenen.</div>';
+    predBox.innerHTML = '';
     return;
   }
-  el.innerHTML = `
-    <div class="pace-row"><span class="label">Rustig (Z1/Z2)</span><span class="val">${secToPace(p.easyLow)} – ${secToPace(p.easyHigh)}</span></div>
-    <div class="pace-row"><span class="label">Tempo / Drempel (Z4)</span><span class="val">${secToPace(p.thresholdPace)}</span></div>
-    <div class="pace-row"><span class="label">Interval (Z5)</span><span class="val">${secToPace(p.intervalPace)}</span></div>
-    <div class="pace-row"><span class="label">Realistisch Doeltempo (M)</span><span class="val">${secToPace(p.currentMarathonSec/42.195)}</span></div>
+
+  // Thresholds
+  threshEl.innerHTML = `
+    <div class="thresh-card">
+      <div class="thresh-head"><div class="thresh-dot aet"></div>AET (Aerobe Drempel)</div>
+      <div class="thresh-val">${secToPace(p.easyLow)} min/km</div>
+      <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">Bovengrens herstel en duurloop</div>
+    </div>
+    <div class="thresh-card">
+      <div class="thresh-head"><div class="thresh-dot cs"></div>Critical Speed</div>
+      <div class="thresh-val">${secToPace(p.thresholdPace)} min/km</div>
+      <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">Tempo / Anaerobe drempel</div>
+    </div>
+    <div class="thresh-card">
+      <div class="thresh-head"><div class="thresh-dot vo2"></div>VO2MAX</div>
+      <div class="thresh-val">${secToPace(p.intervalPace)} min/km</div>
+      <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">Maximale aerobe snelheid (Intervallen)</div>
+    </div>
   `;
 
-  let explanation = '';
-  if (p.exponent < 1.08) {
-      explanation = `Je traint heerlijk consistent! Het verval op je lange afstanden neemt af, waardoor je voorspelde tijd scherper is gezet naar <strong>${secToTime(p.currentMarathonSec)}</strong>.`;
-  } else if (p.exponent > 1.11) {
-      explanation = `Op basis van je recente logs bouwen we je uithoudingsvermogen iets voorzichtiger op. Je prognose is realistisch bijgesteld naar <strong>${secToTime(p.currentMarathonSec)}</strong>.`;
-  } else {
-      explanation = `Dit schema berekent je huidige uithoudingsvermogen op een eindtijd van <strong>${secToTime(p.currentMarathonSec)}</strong>. Log elke training om dit direct te updaten!`;
-  }
+  // HR Zones
+  const maxHr = calculateMaxHr();
+  document.getElementById('maxHrDisplay').textContent = maxHr;
+  
+  const msg = state.maxHrOverride ? 'Handmatig ingevoerd' : (state.restHr ? 'Berekend met Karvonen-formule' : (state.gender==='vrouw' ? 'Formule: 226 - leeftijd' : 'Formule: 220 - leeftijd'));
+  document.getElementById('hrFormulaMsg').textContent = msg;
 
-  let bioFeedbackMsg = '';
-  const bioOffset = p.bioFeedbackOffset || 0;
-  if (bioOffset < -0.5) {
-    bioFeedbackMsg = `<br><br>🔥 <strong>Bio-feedback actief:</strong> Je doeltempo's zijn automatisch met <strong>${Math.abs(Math.round(bioOffset))}s/km versneld</strong> omdat je hartslag lager lag dan je streefzones. Je traint zeer efficiënt!`;
-  } else if (bioOffset > 0.5) {
-    bioFeedbackMsg = `<br><br>⚠️ <strong>Bio-feedback actief:</strong> Je doeltempo's zijn met <strong>${Math.round(bioOffset)}s/km vertraagd</strong> omdat je hartslag hoger lag dan je streefzones. Loop rustiger om je aerobe drempel op te bouwen.`;
-  } else if (state.races.some(r => r.hr)) {
-    bioFeedbackMsg = `<br><br>📊 <strong>Bio-feedback actief:</strong> Je hartslagen sluiten perfect aan op je berekende tempo's.`;
-  }
+  const z1 = getHrZone(1);
+  const z2 = getHrZone(2);
+  const z3 = getHrZone(3);
+  const z4 = getHrZone(4);
+  const z5 = getHrZone(5);
 
-  pred.innerHTML = `Als je traint als een topsporter ligt je absolute theoretische limiet momenteel rond <strong>${secToTime(p.eliteMarathonSec)}</strong>.<br><br>${explanation}${bioFeedbackMsg}`;
+  hrWrap.innerHTML = `
+    <div class="zone-row"><span class="z-name">Z1: Minimale vetverbranding</span><span class="z-bpm">${z1.low} - ${z1.high}</span></div>
+    <div class="zone-row"><span class="z-name">Z2: Vetverbranding</span><span class="z-bpm">${z2.low} - ${z2.high}</span></div>
+    <div class="zone-row"><span class="z-name">Z3: Cardiovasculair</span><span class="z-bpm">${z3.low} - ${z3.high}</span></div>
+    <div class="zone-row"><span class="z-name">Z4: Prestatie verhogend</span><span class="z-bpm">${z4.low} - ${z4.high}</span></div>
+    <div class="zone-row"><span class="z-name">Z5: Uithoudingsvermogen</span><span class="z-bpm">${z5.low} - ${z5.high}</span></div>
+  `;
+
+  // Prediction Box
+  predBox.innerHTML = `
+    <div class="pred-dash">
+      <div class="pred-col">
+        <div class="pred-time">${secToTime(p.eliteMarathonSec)}</div>
+        <div class="pred-pace">${secToPace(p.eliteMarathonSec/42.195)} min/km</div>
+      </div>
+      <div class="pred-divider">- ±3% -</div>
+      <div class="pred-col">
+        <div class="pred-time">${secToTime(p.currentMarathonSec)}</div>
+        <div class="pred-pace">${secToPace(p.currentMarathonSec/42.195)} min/km</div>
+      </div>
+    </div>
+    <p style="font-size:12px; color:var(--text-muted); line-height:1.5;">
+      Links zie je de absolute theorie voor een topatleet op deze basissnelheid. Rechts zie je je huidige realistische voorspelling (wat adaptief is afgestemd op basis van de trainingslogs).
+    </p>
+  `;
 }
 
 function renderRaces(){
@@ -1191,16 +1324,38 @@ function renderRaces(){
         <span>${r.distance} km — ${secToTime(r.timeSec)}</span>
         <span class="rd">${fmtDate(r.date)} ${r.hr ? `· ❤️ ${r.hr} BPM` : ''}</span>
       </div>
-      <button class="del-btn" data-id="${r.id}" title="Verwijder referentietijd">✖</button>
+      <div class="action-btns">
+        <button class="icon-btn edit" data-id="${r.id}" title="Bewerk referentietijd">✏️</button>
+        <button class="icon-btn del" data-id="${r.id}" title="Verwijder referentietijd">✖</button>
+      </div>
     </div>
   `).join('') || '<div class="empty-state">Nog geen tijden</div>';
 
-  document.querySelectorAll('.del-btn').forEach(btn => {
+  document.querySelectorAll('.icon-btn.del').forEach(btn => {
     btn.onclick = (e) => {
-      const id = e.target.dataset.id;
+      const id = e.currentTarget.dataset.id;
       state.races = state.races.filter(r => r.id !== id);
       save();
       render();
+    };
+  });
+
+  document.querySelectorAll('.icon-btn.edit').forEach(btn => {
+    btn.onclick = (e) => {
+      const id = e.currentTarget.dataset.id;
+      const r = state.races.find(x => x.id === id);
+      if(!r) return;
+      
+      document.getElementById('editRaceId').value = r.id;
+      document.getElementById('raceDistance').value = r.distance;
+      document.getElementById('raceDate').value = r.date;
+      document.getElementById('raceInputType').value = 'time';
+      document.getElementById('raceTimeLabel').textContent = 'Tijd (mm:ss of h:mm:ss)';
+      document.getElementById('raceTime').value = secToTime(r.timeSec);
+      document.getElementById('raceHr').value = r.hr || '';
+      
+      document.getElementById('raceModalTitle').textContent = 'Referentietijd bewerken';
+      document.getElementById('raceOverlay').hidden = false;
     };
   });
 }
@@ -1233,7 +1388,7 @@ function renderHistory(){
         <td>${r.label}</td>
         <td>${Math.round(r.planned*10)/10} km</td>
         <td>${r.log.skipped ? '—' : `${r.log.distance} km`}</td>
-        <td>${r.log.hr ? `❤️ ${r.log.hr} BPM` : '—'}</td>
+        <td>${r.log.hr ? `❤️ ${r.log.hr}` : '—'}</td>
         <td>${r.log.skipped ? 'Overgeslagen' : (r.log.feel==='easy'?'Makkelijk':r.log.feel==='hard'?'Zwaar':'Zoals gepland')}</td>
       </tr>
     `).join('')}
@@ -1242,8 +1397,26 @@ function renderHistory(){
 
 function setupEventListeners() {
   document.getElementById('calcTimeBtn').onclick = ()=>{
+    const inputName = document.getElementById('userName').value.trim();
+    const finalName = inputName || 'Gast';
+    
+    if (finalName !== appData.currentUser) {
+      if (!appData.users[finalName]) {
+        appData.users[finalName] = defaultState();
+        appData.users[finalName].userName = finalName;
+      }
+      appData.currentUser = finalName;
+      state = appData.users[finalName];
+    } else {
+      state.userName = finalName;
+    }
+
     state.gender = document.getElementById('userGender').value;
     state.age = parseInt(document.getElementById('userAge').value) || 30;
+    state.weight = parseFloat(document.getElementById('userWeight').value) || 79;
+    state.height = parseInt(document.getElementById('userHeight').value) || 182;
+    state.trainDays = parseInt(document.getElementById('userTrainDays').value) || 4;
+    state.buildUp = document.getElementById('userBuildUp').value || 'stabiel';
     
     const rHr = document.getElementById('userRestHr').value;
     state.restHr = rHr ? parseInt(rHr) : null;
@@ -1261,6 +1434,8 @@ function setupEventListeners() {
   document.querySelectorAll('.distance-btn').forEach(btn => {
     btn.onclick = (e) => {
       const dist = parseFloat(e.target.dataset.dist);
+      document.getElementById('editRaceId').value = '';
+      document.getElementById('raceModalTitle').textContent = 'Referentietijd toevoegen';
       document.getElementById('raceDistance').value = dist;
       document.getElementById('raceDate').value = new Date().toISOString().slice(0,10);
       document.getElementById('raceTime').value = '';
@@ -1269,7 +1444,6 @@ function setupEventListeners() {
     };
   });
 
-  // Toggle Time/Pace input labels
   document.getElementById('raceInputType').onchange = (e) => {
       document.getElementById('raceTimeLabel').textContent = e.target.value === 'pace' ? 'Tijd (mm:ss per km)' : 'Tijd (mm:ss of h:mm:ss)';
   };
@@ -1313,6 +1487,8 @@ function setupEventListeners() {
   document.getElementById('logOverlay').addEventListener('click', e=>{ if(e.target.id==='logOverlay') e.currentTarget.hidden = true; });
 
   document.getElementById('addRaceBtn').onclick = ()=>{
+    document.getElementById('editRaceId').value = '';
+    document.getElementById('raceModalTitle').textContent = 'Referentietijd toevoegen';
     document.getElementById('raceDistance').value = 10;
     document.getElementById('raceDate').value = new Date().toISOString().slice(0,10);
     document.getElementById('raceTime').value = '';
@@ -1324,6 +1500,7 @@ function setupEventListeners() {
   document.getElementById('raceOverlay').addEventListener('click', e=>{ if(e.target.id==='raceOverlay') e.currentTarget.hidden = true; });
 
   document.getElementById('saveRaceBtn').onclick = ()=>{
+    const editId = document.getElementById('editRaceId').value;
     const distance = parseFloat(document.getElementById('raceDistance').value);
     const date = document.getElementById('raceDate').value;
     const isPace = document.getElementById('raceInputType').value === 'pace';
@@ -1331,14 +1508,20 @@ function setupEventListeners() {
     
     if(!distance || !date || !parsedSec){ alert('Vul afstand, datum en tijd correct in.'); return; }
     
-    // Reken pace om naar totale tijd indien nodig
     const timeSec = isPace ? parsedSec * distance : parsedSec;
-
     const hrVal = document.getElementById('raceHr').value;
     const hr = hrVal ? parseInt(hrVal) : null;
 
-    state.races.push({id:'r'+state.nextRaceId, distance, date, timeSec, hr});
-    state.nextRaceId++;
+    if (editId) {
+        const raceIndex = state.races.findIndex(r => r.id === editId);
+        if(raceIndex > -1) {
+            state.races[raceIndex] = { id: editId, distance, date, timeSec, hr };
+        }
+    } else {
+        state.races.push({id:'r'+state.nextRaceId, distance, date, timeSec, hr});
+        state.nextRaceId++;
+    }
+    
     save();
     document.getElementById('raceOverlay').hidden = true;
     render();
@@ -1371,10 +1554,14 @@ const hasClaudeStorage = typeof window.storage !== 'undefined';
 
 async function save(){
   try{
-    if(hasClaudeStorage){
-      await window.storage.set(STORAGE_KEY, JSON.stringify(state), false);
-    } else {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    if (appData && state) {
+      appData.users[appData.currentUser] = state;
+      const payload = JSON.stringify(appData);
+      if(hasClaudeStorage){
+        await window.storage.set('route42-app', payload, false);
+      } else {
+        localStorage.setItem('route42-app', payload);
+      }
     }
   }catch(err){
     console.error('Opslaan mislukt', err);
@@ -1383,24 +1570,38 @@ async function save(){
 
 async function load(){
   try{
+    let rawAppData;
     if(hasClaudeStorage){
-      const res = await window.storage.get(STORAGE_KEY, false);
-      if(res && res.value){ state = JSON.parse(res.value); if(!state.dayPrefs) state.dayPrefs = {}; return; }
+      rawAppData = (await window.storage.get('route42-app', false))?.value;
     } else {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if(raw){ state = JSON.parse(raw); if(!state.dayPrefs) state.dayPrefs = {}; return; }
+      rawAppData = localStorage.getItem('route42-app');
     }
+    
+    if (rawAppData) {
+       appData = JSON.parse(rawAppData);
+       if(!appData.users) appData.users = {}; 
+       state = appData.users[appData.currentUser];
+    } else {
+       let rawOldState;
+       if(hasClaudeStorage) rawOldState = (await window.storage.get(STORAGE_KEY, false))?.value;
+       else rawOldState = localStorage.getItem(STORAGE_KEY);
+       
+       let oldState = rawOldState ? JSON.parse(rawOldState) : defaultState();
+       let uName = oldState.userName || 'Gast';
+       appData = { currentUser: uName, users: { [uName]: oldState } };
+       state = appData.users[uName];
+    }
+    if(!state.dayPrefs) state.dayPrefs = {};
   }catch(err){
-    // nog geen opgeslagen data
+    appData = { currentUser: 'Gast', users: { 'Gast': defaultState() } };
+    state = appData.users['Gast'];
   }
-  state = defaultState();
-  await save();
 }
 
 window.addEventListener('DOMContentLoaded', async () => {
   setupEventListeners();
   await load();
-  if (!state.extras) state.extras = {}; // Safety fallback for older states
+  if (!state.extras) state.extras = {}; 
   render();
 });
 </script>

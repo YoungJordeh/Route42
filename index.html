@@ -218,16 +218,16 @@
   }
 
   /* ---- DAY PREFERENCES ---- */
-  .dayrow{display:flex; align-items:center; gap:8px; padding:7px 0; border-bottom:1px solid var(--border); font-size:13px;}
+  .dayrow{display:grid; grid-template-columns:1fr 120px 60px 28px; align-items:center; gap:6px; padding:7px 0; border-bottom:1px solid var(--border); font-size:13px;}
   .dayrow:last-child{border-bottom:none;}
-  .dayrow .dname{flex:1; color:var(--text-muted); text-transform:capitalize;}
+  .dayrow .dname{color:var(--text-muted); text-transform:capitalize; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   .dayrow.unavailable .dname{opacity:.55;}
   .dayrow select, .profile-row select{
-    background:var(--bg); border:1px solid var(--border); border-radius:6px; color:var(--text);
+    width:100%; background:var(--bg); border:1px solid var(--border); border-radius:6px; color:var(--text);
     font-size:12px; padding:6px 7px; color-scheme:dark;
   }
   .dayrow input[type=number]{
-    width:64px; background:var(--bg); border:1px solid var(--border); border-radius:6px; color:var(--text);
+    width:100%; background:var(--bg); border:1px solid var(--border); border-radius:6px; color:var(--text);
     font-size:12px; padding:6px 7px;
   }
   .dayrow input[type=number]:disabled{opacity:.35;}
@@ -781,6 +781,24 @@
     <div class="modal-actions">
       <button class="btn secondary" id="skipBtn">Overslaan</button>
       <button class="btn" id="saveLogBtn">Opslaan</button>
+    </div>
+  </div>
+</div>
+
+<!-- REPEAT DAY MODAL -->
+<div class="overlay" id="repeatDayOverlay" style="z-index: 1002;" hidden>
+  <div class="modal" style="max-width: 380px;">
+    <h3>Beschikbaarheid herhalen</h3>
+    <p class="subtitle" style="margin-bottom:16px;">Tot wanneer wil je deze dagvoorkeur wekelijks inplannen?</p>
+    <input type="hidden" id="repeatDayIdx">
+    <input type="hidden" id="repeatWeekNum">
+    <div class="field">
+       <label>Herhaal tot en met (standaard: je wedstrijddatum)</label>
+       <input type="date" id="repeatDayUntil">
+    </div>
+    <div class="modal-actions">
+      <button class="btn secondary" id="cancelRepeatDayBtn">Annuleren</button>
+      <button class="btn" id="confirmRepeatDayBtn">Toepassen</button>
     </div>
   </div>
 </div>
@@ -1470,18 +1488,11 @@ function renderDayPrefs(week){
   });
   wrap.querySelectorAll('.dp-repeat').forEach(btn=>{
     btn.onclick = (e)=>{ 
-        const dayIdx = +e.target.dataset.day;
-        const curPref = state.dayPrefs[week.weekNum]?.[dayIdx] || defaultDayPref();
-        const totalWeeks = currentPlan.length;
-        for(let w = week.weekNum + 1; w <= totalWeeks; w++) {
-            if(!state.dayPrefs[w]) state.dayPrefs[w] = {};
-            state.dayPrefs[w][dayIdx] = { ...curPref };
-        }
-        save();
-        const origHTML = btn.innerHTML;
-        btn.innerHTML = '✅';
-        btn.style.color = 'var(--success)';
-        setTimeout(() => { btn.innerHTML = origHTML; btn.style.color = ''; }, 2000);
+        const dayIdx = +e.currentTarget.dataset.day;
+        document.getElementById('repeatDayIdx').value = dayIdx;
+        document.getElementById('repeatWeekNum').value = week.weekNum;
+        document.getElementById('repeatDayUntil').value = state.raceDate;
+        document.getElementById('repeatDayOverlay').hidden = false;
     };
   });
 
@@ -2760,6 +2771,47 @@ function setupEventListeners() {
          }
          deleteSeriesOverlay.hidden = true;
       };
+  }
+
+  const repeatDayOverlay = document.getElementById('repeatDayOverlay');
+  if (repeatDayOverlay) {
+      document.getElementById('cancelRepeatDayBtn').onclick = () => { repeatDayOverlay.hidden = true; };
+      document.getElementById('confirmRepeatDayBtn').onclick = () => {
+          const dayIdx = parseInt(document.getElementById('repeatDayIdx').value, 10);
+          const startWeekNum = parseInt(document.getElementById('repeatWeekNum').value, 10);
+          const limitDateStr = document.getElementById('repeatDayUntil').value || state.raceDate;
+          const limitDate = new Date(limitDateStr + 'T00:00:00Z');
+          
+          const curPref = state.dayPrefs[startWeekNum]?.[dayIdx] || defaultDayPref();
+          const totalWeeks = currentPlan.length;
+          
+          for(let w = startWeekNum + 1; w <= totalWeeks; w++) {
+              const planWeek = currentPlan.find(x => x.weekNum === w);
+              if (!planWeek) continue;
+              
+              const weekStart = new Date(planWeek.weekStart);
+              const targetDate = new Date(weekStart.getTime() + dayIdx * 86400000); // 86400000 = 1 dag
+              
+              if (targetDate > limitDate) continue;
+
+              if(!state.dayPrefs[w]) state.dayPrefs[w] = {};
+              state.dayPrefs[w][dayIdx] = { ...curPref };
+          }
+          
+          save();
+          
+          const btn = document.querySelector(`.dp-repeat[data-day="${dayIdx}"]`);
+          if(btn) {
+              const origHTML = btn.innerHTML;
+              btn.innerHTML = '✅';
+              btn.style.color = 'var(--success)';
+              setTimeout(() => { btn.innerHTML = origHTML; btn.style.color = ''; }, 2000);
+          }
+          
+          repeatDayOverlay.hidden = true;
+          renderWeekPanel();
+      };
+      repeatDayOverlay.addEventListener('click', e => { if(e.target.id === 'repeatDayOverlay') e.currentTarget.hidden = true; });
   }
 }
 

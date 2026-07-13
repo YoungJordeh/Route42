@@ -62,6 +62,10 @@
     margin: 2vh auto;
     box-shadow: 0 10px 30px rgba(0,0,0,0.3);
   }
+  @media (max-width: 480px) {
+    .welcome-card { padding: 24px 16px; }
+    .fullscreen-view { padding: 10px; }
+  }
 
   /* ---- HERO ---- */
   .hero{
@@ -116,6 +120,12 @@
   /* ---- GRID ---- */
   .grid{display:grid; grid-template-columns:1.5fr 1fr; gap:20px; align-items:start;}
   @media (max-width:820px){ .grid{grid-template-columns:1fr;} }
+
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  @media (max-width: 500px) { .form-grid { grid-template-columns: 1fr; } }
+  
+  .race-buttons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 14px; }
+  @media (max-width: 400px) { .race-buttons { grid-template-columns: repeat(2, 1fr); } }
 
   .card{
     background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:20px 22px; margin-bottom:16px;
@@ -287,11 +297,8 @@
   .race-item .rd{color:var(--text-muted); font-size:11px; display:block; margin-top:2px;}
 
   /* ---- HISTORY ---- */
-  #historyWrap {
-      max-width: 100%;
-      overflow-x: auto;
-  }
-  table{width:100%; border-collapse:collapse; font-size:13px; min-width: 500px;} 
+  #historyWrap { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table{width:100%; border-collapse:collapse; font-size:13px; min-width: 500px;}
   th{text-align:left; color:var(--text-muted); font-weight:500; font-size:11px; letter-spacing:.05em; padding:8px 10px; border-bottom:1px solid var(--border);}
   td{padding:10px; border-bottom:1px solid var(--border);}
   tr:last-child td{border-bottom:none;}
@@ -351,7 +358,7 @@
        <input type="number" id="obTargetDist" value="42.2" step="0.1" placeholder="Bv. 15, 21.1 of 42.2">
     </div>
 
-    <div class="grid" style="grid-template-columns:1fr 1fr; gap:10px;">
+    <div class="form-grid">
        <div class="field">
          <label>Startdatum training</label>
          <input type="date" id="obStartDate">
@@ -369,7 +376,7 @@
     <div id="obRacesListWrap" style="margin-bottom:10px; display:flex; flex-direction:column; gap:6px;"></div>
 
     <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border); padding: 12px; border-radius: 8px;">
-      <div class="grid" style="grid-template-columns:1fr 1fr; gap:10px; margin-bottom: 8px;">
+      <div class="form-grid" style="margin-bottom: 8px;">
          <div class="field" style="margin:0;">
            <label>Afstand (km)</label>
            <input type="number" id="obRefDist" placeholder="Bv. 5" step="0.1">
@@ -379,7 +386,7 @@
            <input type="number" id="obRefHr" placeholder="Bv. 150">
          </div>
       </div>
-      <div class="grid" style="grid-template-columns:1fr 1fr; gap:10px;">
+      <div class="form-grid">
          <div class="field" style="margin:0;">
            <label>Invoertype</label>
            <select id="obRefType">
@@ -398,7 +405,7 @@
     
     <h3 style="margin-top: 24px; font-size: 15px; color: var(--gold); margin-bottom:10px;">Fysiologie & beschikbaarheid</h3>
 
-    <div class="grid" style="grid-template-columns:1fr 1fr; gap:10px;">
+    <div class="form-grid">
        <div class="field">
          <label>Geslacht</label>
          <select id="obGender">
@@ -414,7 +421,7 @@
        </div>
     </div>
 
-    <div class="grid" style="grid-template-columns:1fr 1fr; gap:10px;">
+    <div class="form-grid">
        <div class="field">
          <label>Rusthartslag (optioneel)</label>
          <input type="number" id="obRestHr" placeholder="Bv. 55" min="30" max="100">
@@ -436,7 +443,7 @@
       </select>
     </div>
     
-    <div class="grid" style="grid-template-columns:1fr 1fr; gap:10px;">
+    <div class="form-grid">
        <div class="field" style="display:flex; flex-direction:column; justify-content:flex-end;">
          <label title="Bepaalt de startafstand van je schema" style="margin-bottom:auto;">Langste duurloop<br><span style="font-size:10px; font-weight:normal;">(afgelopen 4 weken, in km)</span></label>
          <input type="number" id="obLongestRun" placeholder="Bv. 10" min="0" max="42" style="margin-top:5px;">
@@ -460,7 +467,7 @@
       </div>
     </div>
     
-    <div class="grid" style="grid-template-columns:1fr 1fr; gap:10px;">
+    <div class="form-grid">
        <div class="field">
           <label>Jouw unieke loper</label>
           <select id="obEmoji">
@@ -657,7 +664,7 @@
         <summary>Referentietijden</summary>
         <div class="acc-content">
             <p style="font-size:12px; color:var(--text-muted); margin:0 0 12px 0;">Je basissnelheid op actuele afstanden:</p>
-            <div class="race-buttons" style="display:grid; grid-template-columns: repeat(4, 1fr); gap:6px; margin-bottom:14px;">
+            <div class="race-buttons">
               <button class="btn small distance-btn" data-dist="5">5K</button>
               <button class="btn small distance-btn" data-dist="10">10K</button>
               <button class="btn small distance-btn" data-dist="21.1">21.1K</button>
@@ -2858,6 +2865,18 @@ async function initFlow() {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
+  // Sluit tooltips als je ergens anders op het scherm tikt (speciaal voor mobiel)
+  document.addEventListener('touchstart', (e) => {
+      if (!e.target.classList.contains('info-icon')) {
+          document.querySelectorAll('.info-icon').forEach(icon => icon.blur());
+      }
+  });
+  document.addEventListener('click', (e) => {
+      if (!e.target.classList.contains('info-icon')) {
+          document.querySelectorAll('.info-icon').forEach(icon => icon.blur());
+      }
+  });
+  
   setupEventListeners();
   initFlow();
 });

@@ -2,8 +2,19 @@
 <html lang="nl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Aangepaste viewport voor een 'native app' gevoel op de telefoon -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Route42</title>
+
+<!-- Favicon & Web App Iconen (verwijzen naar het geüploade logo) -->
+<link rel="icon" type="image/jpeg" href="R42_DEF.jpg">
+<link rel="apple-touch-icon" href="R42_DEF.jpg">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Route42">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#17241c">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -94,7 +105,7 @@
   .runner-icon{
     position:absolute; bottom:22px; font-size:24px; z-index:10; 
     filter:drop-shadow(0 2px 4px rgba(0,0,0,0.4));
-    transform: scaleX(-1); /* Spiegelt de emoji zodat deze naar rechts rent */
+    transform: scaleX(-1);
   }
 
   /* ---- GRID ---- */
@@ -107,31 +118,9 @@
   }
   .card h2{font-size:20px; margin-bottom:4px;}
   .card h3{font-size:14px; letter-spacing:.06em; color:var(--gold); text-transform:uppercase; margin-bottom:14px;}
-  .phase-tag{font-size:12px; color:var(--text-muted); margin-bottom:16px;}
-
-  /* ---- AI COACH CARD ---- */
-  .ai-card {
-    background: linear-gradient(135deg, rgba(212,167,44,0.05) 0%, rgba(212,167,44,0.15) 100%);
-    border-color: rgba(212,167,44,0.3);
-  }
-  .ai-card h3 { color: var(--gold); display: flex; align-items: center; gap: 8px;}
-  .ai-output {
-    font-size: 13px; line-height: 1.6; color: var(--text);
-    margin-top: 14px; padding-top: 14px; border-top: 1px dashed rgba(212,167,44,0.3);
-  }
-  .spinner {
-    width: 20px; height: 20px; border: 3px solid rgba(212,167,44,0.3);
-    border-top-color: var(--gold); border-radius: 50%;
-    animation: spin 1s linear infinite; margin: 10px auto;
-  }
-  @keyframes spin { 100% { transform: rotate(360deg); } }
+  .phase-tag{font-size:12px; color:var(--text-muted); margin-bottom:16px; line-height: 1.5;}
 
   /* ---- SESSIONS & SCORES ---- */
-  .session{
-    display:flex; justify-content:space-between; align-items:center; gap:12px;
-    padding:14px 0; border-bottom:1px solid var(--border);
-  }
-  .session:last-child{border-bottom:none;}
   .session-type{
     font-size:11px; font-weight:600; letter-spacing:.06em; padding:3px 8px; border-radius:20px; text-transform:uppercase;
   }
@@ -139,8 +128,6 @@
   .session-type.quality{background:rgba(193,80,46,.18); color:#e08863;}
   .session-type.easy{background:rgba(111,162,135,.18); color:var(--success);}
   .session-type.extra{background:rgba(154,171,154,.18); color:var(--text-muted);}
-  .session-main{flex:1;}
-  .session-name{font-weight:600; font-size:15px; display: flex; align-items: center;}
   
   .info-icon {
     display: inline-block; width: 16px; height: 16px; border-radius: 50%;
@@ -228,6 +215,9 @@
   .btn.secondary{background:transparent; color:var(--text); border:1px solid var(--border);}
   .btn.small{padding:5px 10px; font-size:12px;}
   .btn.full{width:100%; margin-top:10px; padding:10px; text-align:center;}
+  .icon-btn{background:transparent; border:none; color:var(--text-muted); cursor:pointer; padding:4px; font-size:14px; display:inline-flex; align-items:center; justify-content:center;}
+  .icon-btn:hover{color:var(--text);}
+  .icon-btn.del:hover{color:var(--rust);}
   .action-group { display:flex; gap:6px; justify-content: flex-end; margin-top:6px; }
 
   /* ---- PROFILE & ZONES ---- */
@@ -259,6 +249,11 @@
   details.accordion[open] summary::after { transform: rotate(180deg); }
   .acc-content { margin-top: 12px; border-top: 1px solid var(--border); padding-top: 12px; }
 
+  /* SESSION ACCORDION SPECIFICS */
+  details.session-accordion { padding: 0; }
+  details.session-accordion summary { padding: 14px 16px; align-items: center; }
+  details.session-accordion .acc-content { margin: 0 16px 16px 16px; padding-top: 14px; }
+
   .zone-row{display:flex; justify-content:space-between; align-items:center; font-size:13px; padding:6px 0; border-bottom:1px solid var(--border);}
   .zone-row:last-child{border-bottom:none;}
   .zone-row .z-name{color:var(--text-muted); display:flex; align-items:center;}
@@ -281,9 +276,6 @@
   .race-item{display:flex; justify-content:space-between; align-items:center; font-size:13px; padding:7px 0; border-bottom:1px solid var(--border);}
   .race-item:last-child{border-bottom:none;}
   .race-item .rd{color:var(--text-muted); font-size:11px; display:block; margin-top:2px;}
-  .icon-btn{background:transparent; border:none; color:var(--text-muted); cursor:pointer; padding:4px; font-size:14px;}
-  .icon-btn:hover{color:var(--text);}
-  .icon-btn.del:hover{color:var(--rust);}
 
   /* ---- HISTORY ---- */
   table{width:100%; border-collapse:collapse; font-size:13px;}
@@ -382,7 +374,7 @@
          <input type="number" id="obLongestRun" placeholder="Bv. 10" min="0" max="42" style="margin-top:5px;">
        </div>
        <div class="field" style="display:flex; flex-direction:column; justify-content:flex-end;">
-         <label title="Helpt voor hersteladvies en AI coach" style="margin-bottom:auto;">Extra sport<br><span style="font-size:10px; font-weight:normal;">(uur / week)</span></label>
+         <label title="Helpt voor hersteladvies" style="margin-bottom:auto;">Extra sport<br><span style="font-size:10px; font-weight:normal;">(uur / week)</span></label>
          <select id="obOtherSport" style="margin-top:5px;">
            <option value="0" selected>0 uur</option>
            <option value="1-3">1 - 3 uur</option>
@@ -469,17 +461,7 @@
 
   <div class="grid">
     <section>
-      <!-- AI COACH CARD -->
-      <div class="card ai-card">
-        <h3>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10H12V2z"></path><path d="M12 12 2.1 7.1"></path><path d="M12 12l9.9 4.9"></path></svg>
-          AI Coach Analyse
-        </h3>
-        <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Vraag de Gemini AI voor een diepgaande analyse en motivatie over de huidige week.</p>
-        <button class="btn secondary full small" id="aiCoachBtn">Vraag om week-analyse</button>
-        <div id="aiCoachOutput" class="ai-output" hidden></div>
-      </div>
-
+      
       <div class="card">
         <h2 id="weekTitle">Week —</h2>
         <div class="phase-tag" id="weekPhase"></div>
@@ -632,6 +614,7 @@
   <footer>Route42 · richtlijn op basis van je eigen tijden, geen medisch advies — bouw rustig op en luister naar je lijf.</footer>
 </div>
 
+<!-- LOG MODAL -->
 <div class="overlay" id="logOverlay" hidden>
   <div class="modal">
     <h3 id="logModalTitle">Training loggen</h3>
@@ -649,26 +632,28 @@
     </div>
     
     <div class="field" id="logInputTypeWrap">
-      <label>Invoertype (Tijd of Tempo)</label>
+      <label>Invoertype (tijd of tempo)</label>
       <select id="logInputType">
-        <option value="time">Totale tijd (bv. 46:22 of 1:46:22)</option>
-        <option value="pace">Gemiddeld tempo (bv. 4:38)</option>
+        <option value="time">Totale tijd (bv. 30:00 of 1:00:00)</option>
+        <option value="pace">Gemiddeld tempo (bv. 5:00)</option>
       </select>
     </div>
     
     <div class="field">
       <label id="logTimeLabel">Tijd (mm:ss of h:mm:ss, optioneel)</label>
-      <input type="text" id="logTime" placeholder="46:22">
+      <input type="text" id="logTime" placeholder="30:00">
     </div>
     
     <div class="field">
-      <label>Gem. Hartslag (BPM, optioneel)</label>
-      <input type="number" id="logHr" placeholder="Bv. 142" min="60" max="220">
+      <label>Gem. hartslag (BPM, optioneel)</label>
+      <input type="number" id="logHr" placeholder="Bv. 150" min="60" max="220">
     </div>
+    
     <div class="field">
       <label>Wanneer heb je dit gedaan?</label>
       <input type="date" id="logDate">
     </div>
+    
     <div class="field">
       <label>Hoe voelde het?</label>
       <div class="feel-options">
@@ -677,6 +662,27 @@
         <label><input type="radio" name="feel" value="hard"><span>Zwaarder dan verwacht</span></label>
       </div>
     </div>
+    
+    <div id="repeatWrap" class="field" hidden style="margin-top:16px; padding-top:16px; border-top:1px dashed var(--border);">
+      <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+        <input type="checkbox" id="logRepeat" style="width:auto; margin:0;"> 
+        <span style="font-size:13px; color:var(--text);">Deze sport wekelijks herhalen</span>
+      </label>
+      <div id="repeatUntilWrap" style="margin-top:12px;" hidden>
+         <label>Herhaal tot en met (standaard: je marathondatum)</label>
+         <input type="date" id="logRepeatUntil">
+      </div>
+    </div>
+
+    <!-- BEWERK REEKS OPTIE -->
+    <div id="editSeriesWrap" class="field" hidden style="margin-top:16px; padding-top:16px; border-top:1px dashed var(--border);">
+      <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+        <input type="checkbox" id="logEditSeries" style="width:auto; margin:0;"> 
+        <span style="font-size:13px; color:var(--text);">Wijziging toepassen op de héle reeks</span>
+      </label>
+      <p style="font-size:11px; color:var(--text-muted); margin-top:4px; margin-left:24px;">Vink uit om alleen deze specifieke datum te wijzigen.</p>
+    </div>
+
     <div class="modal-actions">
       <button class="btn secondary" id="skipBtn">Overslaan</button>
       <button class="btn" id="saveLogBtn">Opslaan</button>
@@ -684,6 +690,7 @@
   </div>
 </div>
 
+<!-- RACE MODAL -->
 <div class="overlay" id="raceOverlay" hidden>
   <div class="modal">
     <h3 id="raceModalTitle">Referentietijd</h3>
@@ -700,17 +707,17 @@
     <div class="field">
       <label>Invoertype</label>
       <select id="raceInputType">
-        <option value="time">Totale tijd (bv. 46:22 of 1:46:22)</option>
-        <option value="pace">Gemiddeld tempo (bv. 4:38)</option>
+        <option value="time">Totale tijd (bv. 30:00 of 1:00:00)</option>
+        <option value="pace">Gemiddeld tempo (bv. 5:00)</option>
       </select>
     </div>
     <div class="field">
       <label id="raceTimeLabel">Tijd (mm:ss of h:mm:ss)</label>
-      <input type="text" id="raceTime" placeholder="46:22">
+      <input type="text" id="raceTime" placeholder="30:00">
     </div>
     <div class="field">
-      <label>Gem. Hartslag (BPM, optioneel)</label>
-      <input type="number" id="raceHr" placeholder="Bv. 146" min="100" max="220">
+      <label>Gem. hartslag (BPM, optioneel)</label>
+      <input type="number" id="raceHr" placeholder="Bv. 150" min="100" max="220">
     </div>
     <div class="modal-actions">
       <button class="btn secondary" id="cancelRaceBtn">Annuleren</button>
@@ -719,6 +726,7 @@
   </div>
 </div>
 
+<!-- DELETE MODAL -->
 <div class="overlay" id="deleteConfirmOverlay" style="z-index: 1001;" hidden>
   <div class="modal" style="max-width: 320px; text-align:center;">
     <h3>Profiel verwijderen?</h3>
@@ -726,6 +734,19 @@
     <div class="modal-actions" style="justify-content: center; gap: 15px;">
       <button class="btn secondary" id="cancelDeleteBtn">Annuleren</button>
       <button class="btn" id="confirmDeleteBtn" style="background:var(--rust); color:#fff; border:none;">Verwijderen</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE SERIES MODAL -->
+<div class="overlay" id="deleteSeriesOverlay" style="z-index: 1002;" hidden>
+  <div class="modal" style="max-width: 380px; text-align:center;">
+    <h3>Reeks verwijderen?</h3>
+    <p class="subtitle" style="margin-bottom:20px;">Deze sport is onderdeel van een wekelijkse herhaling. Wil je alleen deze datum verwijderen, of de hele reeks?</p>
+    <div class="modal-actions" style="flex-direction: column; gap: 10px;">
+      <button class="btn" id="btnDeleteOne" style="background:var(--panel-alt); color:var(--text); border:1px solid var(--border);">Alleen deze verwijderen</button>
+      <button class="btn" id="btnDeleteSeries" style="background:var(--rust); color:#fff; border:none;">Hele reeks verwijderen</button>
+      <button class="btn secondary" id="btnCancelSeriesDelete" style="margin-top:10px;">Annuleren</button>
     </div>
   </div>
 </div>
@@ -738,6 +759,7 @@ let allData = {};
 let currentUsername = 'Standaard';
 let state = null; 
 let activeSession = null;
+let pendingSeriesDelete = null;
 
 function defaultUserState(){
   return {
@@ -796,6 +818,7 @@ function hexToHSL(hex) {
 function applyTheme(hex) {
     const root = document.documentElement;
     const picker = document.getElementById('themePicker');
+    const themeColorMeta = document.querySelector('meta[name="theme-color"]');
     
     if (!hex) {
         root.style.removeProperty('--bg');
@@ -806,6 +829,7 @@ function applyTheme(hex) {
         root.style.removeProperty('--gold');
         root.style.removeProperty('--border');
         if(picker) picker.value = "#d4a72c"; 
+        if(themeColorMeta) themeColorMeta.setAttribute('content', '#17241c');
         return;
     }
 
@@ -822,6 +846,10 @@ function applyTheme(hex) {
     root.style.setProperty('--text-muted', `hsl(${h}, 10%, 65%)`);
     root.style.setProperty('--gold', `hsl(${h}, ${accentS}%, ${accentL}%)`);
     root.style.setProperty('--border', `hsla(${h}, 15%, 88%, 0.12)`);
+    
+    if(themeColorMeta) {
+        themeColorMeta.setAttribute('content', root.style.getPropertyValue('--bg').trim() || '#17241c');
+    }
 }
 
 // ---------- UTILS ----------
@@ -863,38 +891,38 @@ function getSessionTooltip(s) {
     return '';
 }
 
-// ---------- SCORE LOGIC ----------
-function calcSessionScore(log, targetKm, targetZoneNum) {
-  if (log.skipped) return 0;
-  let score = 7.5; 
-  
+// ---------- SCORE LOGIC MET UITLEG ----------
+function calcSessionScoreDetails(log, targetKm, targetZoneNum) {
+  if (log.skipped) return { score: 0, text: 'Training overgeslagen.' };
+  let score = 7.5;
+  let text = 'Opbouw:\nBasiscijfer: 7.5\n';
+
   if (targetKm && log.distance) {
     let ratio = log.distance / targetKm;
-    if (ratio >= 0.95 && ratio <= 1.05) score += 1;
-    else if (ratio >= 0.8 && ratio < 0.95) score += 0.5;
-    else if (ratio < 0.8) score -= 1.5;
-    else if (ratio > 1.2) score -= 1; 
+    if (ratio >= 0.95 && ratio <= 1.05) { score += 1; text += '✓ +1.0 Afstand perfect gehaald\n'; }
+    else if (ratio >= 0.8 && ratio < 0.95) { score += 0.5; text += '✓ +0.5 Afstand grotendeels gehaald\n'; }
+    else if (ratio < 0.8) { score -= 1.5; text += '−1.5 Afstand veel korter dan gepland\n'; }
+    else if (ratio > 1.2) { score -= 1; text += '−1.0 Afstand veel langer dan gepland\n'; }
   }
-  
-  if (log.feel === 'right') score += 0.5;
-  else if (log.feel === 'easy') score += 1.0;
-  else if (log.feel === 'hard') score -= 0.5;
+
+  if (log.feel === 'right') { score += 0.5; text += '✓ +0.5 Gevoel was precies zoals gepland\n'; }
+  else if (log.feel === 'easy') { score += 1.0; text += '✓ +1.0 Gevoel was makkelijker dan verwacht\n'; }
+  else if (log.feel === 'hard') { score -= 0.5; text += '−0.5 Gevoel was zwaarder dan verwacht\n'; }
 
   if (log.hr && targetZoneNum) {
     let zone = getHrZone(targetZoneNum);
     if (log.hr >= zone.low && log.hr <= zone.high) {
-        score += 1.5; 
+        score += 1.5; text += '✓ +1.5 Hartslag perfect in de doelzone\n';
     } else if (log.hr > zone.high) {
-        score -= 1.5; 
+        score -= 1.5; text += '−1.5 Hartslag hoger dan de doelzone\n';
     } else if (log.hr < zone.low) {
-        if (targetZoneNum >= 4) score -= 1.0; 
-        else score += 1.0; 
+        if (targetZoneNum >= 4) { score -= 1.0; text += '−1.0 Hartslag te laag voor de intensiteit\n'; }
+        else { score += 1.0; text += '✓ +1.0 Hartslag mooi laag gebleven\n'; }
     }
-  } else {
-    score += 0.5; 
   }
-  
-  return Math.min(10, Math.max(1, score));
+
+  score = Math.min(10, Math.max(1, score));
+  return { score, text };
 }
 
 function getScoreColorClass(score) {
@@ -999,7 +1027,6 @@ function calcPaces(){
   if(!races || races.length===0) {
     let best10kPace = Infinity;
     
-    // Kijk in alle normale trainingen voor de beste richttijd
     for(const key in state.logs){
        const l = state.logs[key];
        if(l.skipped || !l.distance || !l.timeSec) continue;
@@ -1011,7 +1038,6 @@ function calcPaces(){
        if(est10k < best10kPace) best10kPace = est10k;
     }
     
-    // Kijk ook in de extra trainingen
     if(state.extras) {
         for(const week in state.extras) {
            state.extras[week].forEach(l => {
@@ -1026,9 +1052,8 @@ function calcPaces(){
         }
     }
 
-    if(best10kPace === Infinity) return null; // Geen races én geen bruikbare logs
+    if(best10kPace === Infinity) return null;
 
-    // Maak een virtuele race aan op basis van de beste training
     races = [{ distance: 10, timeSec: best10kPace * 10 }];
     usingLogs = true;
   }
@@ -1069,81 +1094,6 @@ function calcPaces(){
   };
 }
 
-// ---------- GEMINI AI COACH INTEGRATION ----------
-async function getAICoachAdvice() {
-  const btn = document.getElementById('aiCoachBtn');
-  const output = document.getElementById('aiCoachOutput');
-  
-  btn.disabled = true;
-  btn.textContent = 'Bezig met analyseren...';
-  output.innerHTML = '<div class="spinner"></div>';
-  output.hidden = false;
-
-  const w = currentPlan[selectedWeekIdx];
-  const p = calcPaces();
-  
-  let weekLogsText = '';
-  if (w && w.sessions) {
-      w.sessions.forEach(s => {
-         const key = sessionKey(w.weekNum, s.idx);
-         const log = state.logs[key];
-         if(log) {
-             weekLogsText += `- ${s.label} (${Math.round(s.km*10)/10}km): ${log.skipped ? 'Overgeslagen' : `Gelopen: ${log.distance}km, Gevoel: ${log.feel}, Gem. Hartslag: ${log.hr || 'Niet ingevuld'}`}\n`;
-         } else {
-             weekLogsText += `- ${s.label} (${Math.round(s.km*10)/10}km): Nog niet gelogd\n`;
-         }
-      });
-      let extraLogs = state.extras && state.extras[w.weekNum] ? state.extras[w.weekNum] : [];
-      extraLogs.forEach(ext => {
-          let logType = ext.isSport ? ext.sportName : `Extra Hardlopen (${ext.distance}km)`;
-          weekLogsText += `- ${logType}: Gevoel: ${ext.feel}, Gem. Hartslag: ${ext.hr || 'N/A'}\n`;
-      });
-  }
-
-  const pText = p ? secToTime(p.currentMarathonSec) : 'Onbekend (voeg referenties toe)';
-  
-  const userQuery = `Analyseer de trainingsweek van loper: ${currentUsername} (Leeftijd: ${state.age || 30}).
-  Achtergrond: Hardloopvolume in aanloop was '${state.pastVolume}', Andere intensieve sporten: ${state.otherSportHours} uur/week.
-  We kijken naar Week ${w ? w.weekNum : '?'} van het marathonschema.
-  Huidige voorspelde marathontijd: ${pText}.
-  
-  Trainingen deze week:
-  ${weekLogsText}
-  
-  Geef een persoonlijke, zeer motiverende, en professionele analyse van de week (maximaal 100 woorden). Geef als afsluiting 1 unieke, concrete trainingstip voor de komende dagen.`;
-
-  const systemPrompt = "Je bent de virtuele AI-coach van Route42, een professionele en inspirerende marathoncoach. Gebruik geen markdown formatting zoals **, gebruik HTML tags <b> of <i> als nadruk nodig is. Wees beknopt, enthousiast en analytisch. Spreek de loper direct aan in de 'je' of 'jij' vorm.";
-
-  try {
-    const apiKey = ""; 
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-    const payload = {
-        contents: [{ parts: [{ text: userQuery }] }],
-        systemInstruction: { parts: [{ text: systemPrompt }] }
-    };
-
-    const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-    });
-
-    const result = await response.json();
-    const candidate = result.candidates?.[0];
-    if (candidate && candidate.content?.parts?.[0]?.text) {
-        output.innerHTML = candidate.content.parts[0].text.replace(/\n/g, '<br>');
-    } else {
-        output.innerHTML = "Oeps, je coach kon de analyse niet voltooien. Probeer het later nog eens.";
-    }
-  } catch (err) {
-    output.innerHTML = "Geen netwerkverbinding met de AI Coach. Probeer het later nog eens.";
-    console.error("AI Coach Error:", err);
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'Vraag om nieuwe analyse';
-  }
-}
-
 function generatePlan(skipBioLoop = false){
   const startDate = new Date(state.startDate+'T00:00:00');
   const raceDate = new Date(state.raceDate+'T00:00:00');
@@ -1151,17 +1101,16 @@ function generatePlan(skipBioLoop = false){
   const totalWeeks = Math.max(6, Math.ceil(totalDays/7));
   const taperWeeks = 2;
   
-  // Custom fysiologische opbouw op basis van Onboarding
   const startLR = state.longestRun && state.longestRun > 0 ? state.longestRun : 6;
   
   let absPeakLR = 28;
-  if(state.pastVolume === 'low') absPeakLR = 25; // Beschermt beginners tegen overbelasting
-  else if(state.pastVolume === 'med') absPeakLR = 30; // Standaard veilige opbouw
-  else if(state.pastVolume === 'high') absPeakLR = 32; // Perfect voor gevorderden
-  else if(state.pastVolume === 'elite') absPeakLR = 35; // Voor extreme km-vreters
+  if(state.pastVolume === 'low') absPeakLR = 25; 
+  else if(state.pastVolume === 'med') absPeakLR = 30; 
+  else if(state.pastVolume === 'high') absPeakLR = 32; 
+  else if(state.pastVolume === 'elite') absPeakLR = 35; 
 
   const peakWeekIndex = totalWeeks - taperWeeks - 1;
-  const peakLR = Math.min(absPeakLR, startLR + (peakWeekIndex * 2.5)); // Max 2.5km opbouw per week
+  const peakLR = Math.min(absPeakLR, startLR + (peakWeekIndex * 2.5)); 
   
   if(!state.userExponent) updateAdjustmentFactor();
   
@@ -1175,7 +1124,6 @@ function generatePlan(skipBioLoop = false){
   }
   vFactor = Math.max(0.75, Math.min(1.25, vFactor));
 
-  // Determine user day bounds
   const minD = state.minDays || 3;
   const maxD = state.maxDays || 4;
 
@@ -1187,7 +1135,6 @@ function generatePlan(skipBioLoop = false){
     const isCutback = !isTaper && !isRaceWeek && (weekNum % 4 === 0);
     const weekStart = new Date(startDate.getTime() + i*7*DAY);
 
-    // Calculate long run
     let lr;
     if(isRaceWeek){
       lr = 42.195;
@@ -1207,13 +1154,11 @@ function generatePlan(skipBioLoop = false){
       if(lr > 34) lr = 34; 
     }
 
-    // Dynamic Run Days logic
     let progressRatio = peakWeekIndex > 0 ? (i / peakWeekIndex) : 1;
     let baseDays = minD + Math.round((maxD - minD) * progressRatio);
     
     if(isCutback || isTaper) baseDays = minD;
     
-    // Adapt to user fatigue (vFactor)
     if(vFactor < 0.95) baseDays = Math.max(minD, baseDays - 1);
     if(vFactor > 1.10) baseDays = Math.min(maxD, baseDays + 1);
 
@@ -1235,7 +1180,7 @@ function generatePlan(skipBioLoop = false){
       let qDetail, qMeta;
       if(isTempo){
         const mins = Math.round(Math.min(35, 15 + weekNum*1.5));
-        qDetail = `${mins} min in tempo, in- en uitlopen erbij`;
+        qDetail = `Loop rustig in, versnel dan voor ${mins} min naar je Critical Speed (Z4), en loop de rest rustig uit tot ${qKm} km.`;
         qMeta = {kind:'tempo', minutes: mins};
       } else {
         const reps = Math.min(9, 4 + Math.floor(weekNum/3));
@@ -1407,6 +1352,7 @@ function renderDayPrefs(week){
         <option value="other_sport" ${d.status==='other_sport'?'selected':''}>Andere sport</option>
       </select>
       <input type="number" class="dp-duration" data-day="${d.idx}" min="0" step="5" placeholder="min" value="${d.duration ?? ''}" ${showDuration?'':'disabled'}>
+      <button class="icon-btn dp-repeat" data-day="${d.idx}" title="Herhaal deze instelling voor alle komende weken">🔁</button>
     </div>`;
   }).join('');
 
@@ -1415,6 +1361,22 @@ function renderDayPrefs(week){
   });
   wrap.querySelectorAll('.dp-duration').forEach(inp=>{
     inp.onchange = (e)=>{ const val = e.target.value ? parseInt(e.target.value, 10) : null; setDayPref(week.weekNum, +e.target.dataset.day, {duration: val}); renderWeekPanel(); };
+  });
+  wrap.querySelectorAll('.dp-repeat').forEach(btn=>{
+    btn.onclick = (e)=>{ 
+        const dayIdx = +e.target.dataset.day;
+        const curPref = state.dayPrefs[week.weekNum]?.[dayIdx] || defaultDayPref();
+        const totalWeeks = currentPlan.length;
+        for(let w = week.weekNum + 1; w <= totalWeeks; w++) {
+            if(!state.dayPrefs[w]) state.dayPrefs[w] = {};
+            state.dayPrefs[w][dayIdx] = { ...curPref };
+        }
+        save();
+        const origHTML = btn.innerHTML;
+        btn.innerHTML = '✅';
+        btn.style.color = 'var(--success)';
+        setTimeout(() => { btn.innerHTML = origHTML; btn.style.color = ''; }, 2000);
+    };
   });
 
   const advice = document.getElementById('restAdvice');
@@ -1457,18 +1419,38 @@ function renderIntervalBlocks(s, p){
 }
 
 function openLogModal(week, session) {
-  activeSession = { week, session, isExtra: false, isSport: false };
-  const key = sessionKey(week.weekNum, session.idx);
-  const log = state.logs[key] || {};
+  activeSession = { week, session, isExtra: session.isExtra || false, isSport: session.isSport || false };
+  const isExtra = session.isExtra;
+  const isSport = session.isSport;
   
-  document.getElementById('logModalTitle').textContent = `${session.label} — Week ${week.weekNum}`;
-  document.getElementById('sportNameWrap').hidden = true;
-  document.getElementById('distanceWrap').hidden = false;
-  document.getElementById('logInputTypeWrap').hidden = false;
+  let log = {};
+  if (isExtra) {
+      log = session.logData || {};
+  } else {
+      const key = sessionKey(week.weekNum, session.idx);
+      log = state.logs[key] || {};
+  }
   
-  document.getElementById('logDistance').value = log.distance || session.km || '';
-  document.getElementById('logInputType').value = 'time';
-  document.getElementById('logTimeLabel').textContent = 'Tijd (mm:ss of h:mm:ss, optioneel)';
+  document.getElementById('logModalTitle').textContent = `${session.label} bewerken — Week ${week.weekNum}`;
+  
+  if (isSport) {
+      document.getElementById('sportNameWrap').hidden = false;
+      document.getElementById('distanceWrap').hidden = true;
+      document.getElementById('logInputTypeWrap').hidden = true;
+      document.getElementById('logSportName').value = log.sportName || '';
+      document.getElementById('logTimeLabel').textContent = 'Totale duur (mm:ss of h:mm:ss)';
+  } else {
+      document.getElementById('sportNameWrap').hidden = true;
+      document.getElementById('distanceWrap').hidden = false;
+      document.getElementById('logInputTypeWrap').hidden = false;
+      document.getElementById('logDistance').value = log.distance || session.km || '';
+      
+      const logInputType = document.getElementById('logInputType');
+      logInputType.value = 'time'; 
+      document.getElementById('logTimeLabel').textContent = 'Tijd (mm:ss of h:mm:ss, optioneel)';
+      document.getElementById('logTime').placeholder = '30:00';
+  }
+  
   document.getElementById('logTime').value = log.timeSec ? secToTime(log.timeSec) : '';
   document.getElementById('logHr').value = log.hr || '';
   
@@ -1490,6 +1472,17 @@ function openLogModal(week, session) {
       if(feelInput) feelInput.checked = true;
   } else {
       document.querySelector(`input[name="feel"][value="right"]`).checked = true;
+  }
+  
+  document.getElementById('repeatWrap').hidden = true;
+  document.getElementById('logRepeat').checked = false;
+  document.getElementById('repeatUntilWrap').hidden = true;
+  
+  if (isExtra && log.seriesId) {
+      document.getElementById('editSeriesWrap').hidden = false;
+      document.getElementById('logEditSeries').checked = false; 
+  } else {
+      document.getElementById('editSeriesWrap').hidden = true;
   }
   
   document.getElementById('extraWarning').hidden = true;
@@ -1637,8 +1630,6 @@ function renderWeekPanel(){
   const phaseLabel = w.isRaceWeek ? 'Racedag' : w.isTaper ? 'Taper — rustig afbouwen' : w.isCutback ? 'Herstelweek — bewust wat minder' : 'Opbouwweek';
   
   const endDate = new Date(w.weekStart.getTime() + 6 * DAY);
-  document.getElementById('weekPhase').textContent = `${phaseLabel} · ${fmtDate(w.weekStart)} – ${fmtDate(endDate)} · ${w.runDays} hardloopdagen gepland`;
-
   const dayPlan = renderDayPrefs(w);
   const p = calcPaces();
 
@@ -1685,6 +1676,11 @@ function renderWeekPanel(){
   });
 
   let totalScore = 0, scoreCount = 0, skips = 0;
+  
+  let totalPlannedKm = 0;
+  w.sessions.forEach(s => totalPlannedKm += (s.km || 0));
+  let totalDoneKm = 0;
+  let extraDoneKm = 0;
 
   sortedSessions.forEach(s=>{
     let isExtra = s.isExtra;
@@ -1692,17 +1688,21 @@ function renderWeekPanel(){
     let key = isExtra ? null : sessionKey(w.weekNum, s.idx);
     let log = isExtra ? s.logData : state.logs[key];
     
-    let score = null;
+    if(log && !log.skipped && log.distance && !isSport) {
+       if(isExtra) extraDoneKm += log.distance;
+       else totalDoneKm += log.distance;
+    }
+
+    let details = null;
     if(log && !log.skipped && !isSport) {
-        score = calcSessionScore(log, isExtra ? null : s.km, getTargetZoneNum(s));
-        totalScore += score;
+        details = calcSessionScoreDetails(log, isExtra ? null : s.km, getTargetZoneNum(s));
+        totalScore += details.score;
         scoreCount++;
     } else if (log && log.skipped) {
         skips++;
     }
 
     const row = document.createElement('div');
-    row.className = 'session';
     
     let statusHtml, actionHtml, dayBadgeHtml = '';
     
@@ -1710,14 +1710,14 @@ function renderWeekPanel(){
        const d = new Date(log.date);
        const fmt = d.toLocaleDateString('nl-NL', {weekday:'short', day:'numeric', month:'short'});
        const checkIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:text-bottom; margin-left:4px;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
-       dayBadgeHtml = `<span class="day-badge" style="border-color:var(--success); color:var(--success);">${fmt} ${checkIcon}</span>`;
+       dayBadgeHtml = `<span style="color:var(--success); font-weight:600;">${fmt} ${checkIcon}</span>`;
     } else if (log && log.skipped) {
-       dayBadgeHtml = `<span class="day-badge" style="border-color:var(--rust); color:var(--rust);">Overgeslagen</span>`;
+       dayBadgeHtml = `<span style="color:var(--rust); font-weight:600;">Overgeslagen</span>`;
     } else if (!isExtra) {
        const dayIdx = dayPlan.assignment[s.idx];
        if(dayIdx != null){
           const dt = dayPlan.days.find(d=>d.idx===dayIdx).date;
-          dayBadgeHtml = `<span class="day-badge">${dayLabel(dt, {weekday:'short', day:'numeric', month:'short'})}</span>`;
+          dayBadgeHtml = `${dayLabel(dt, {weekday:'short', day:'numeric', month:'short'})}`;
        }
     }
 
@@ -1730,14 +1730,14 @@ function renderWeekPanel(){
     }
 
     if(log && log.skipped){
-      statusHtml = `<div class="session-status skipped">Overgeslagen</div>`;
+      statusHtml = `<div class="session-status skipped" style="font-weight:600;">Overgeslagen</div>`;
       actionHtml = `
         <button class="btn secondary small log-btn" data-key="${key}">Alsnog loggen</button>
         <button class="btn secondary small reset-btn" data-key="${key}" title="Verwijder log">Herstellen</button>
       `;
     } else if(log){
       const logHrDisplay = log.hr ? ` · ❤️ ${log.hr} BPM` : '';
-      const scoreBadge = score ? `<span class="score-badge ${getScoreColorClass(score)}">Cijfer: ${score.toFixed(1)}</span>` : '';
+      const scoreBadge = details ? `<span class="score-badge ${getScoreColorClass(details.score)}">Cijfer: ${details.score.toFixed(1)} <span class="info-icon" style="margin-left:4px; font-size:9px; width:12px; height:12px; line-height:12px;" data-tooltip="${details.text}">i</span></span>` : '';
       const distDisplay = isSport ? '' : `${log.distance} km`;
       statusHtml = `<div class="session-status done">${distDisplay}${timeOrPaceDisplay}${logHrDisplay}<br>${scoreBadge}</div>`;
       actionHtml = `
@@ -1763,34 +1763,54 @@ function renderWeekPanel(){
     let typeName = isSport ? 'SPORT' : isExtra ? 'Extra' : s.type==='long'?'Lang':s.type==='quality'?'Kwaliteit':'Rustig';
 
     row.innerHTML = `
-      <div class="session-main">
-        <span class="session-type ${s.type}" ${typeClass}>${typeName}</span>${dayBadgeHtml}
-        <div class="session-name">${s.label} ${distTarget} ${infoIcon}</div>
-        <div class="session-detail">${s.detail}</div>
-        ${paceHtml}
-        ${hrHtml}
-        ${blocksHtml}
-      </div>
-      <div style="text-align:right;">
-          ${statusHtml}
-          <div class="action-group">${actionHtml}</div>
-      </div>
+      <details class="accordion session-accordion" style="margin-bottom:10px; padding:0;">
+          <summary class="session-summary" style="padding:14px 16px; display:flex; gap:12px; align-items:center;">
+            <span class="session-type ${s.type}" ${typeClass}>${typeName}</span>
+            <span style="font-weight:600; flex:1;">${s.label} ${distTarget}</span>
+            <span style="font-size:12px; color:var(--text-muted); text-align:right;">${dayBadgeHtml}</span>
+          </summary>
+          <div class="acc-content session-content" style="margin:0 16px 16px; padding-top:14px;">
+            <div class="session-detail" style="margin-bottom:12px;">${s.detail} ${infoIcon}</div>
+            ${paceHtml}
+            ${hrHtml}
+            ${blocksHtml}
+            <div style="margin-top:16px; padding-top:16px; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+               ${statusHtml}
+               <div class="action-group">${actionHtml}</div>
+            </div>
+          </div>
+      </details>
     `;
     
     row.querySelectorAll('.log-btn').forEach(btn => btn.onclick = () => openLogModal(w, s));
     row.querySelectorAll('.reset-btn').forEach(btn => btn.onclick = () => {
         if(isExtra) {
-            state.extras[w.weekNum].splice(s.extIndex, 1);
+            if (s.logData.seriesId) {
+                pendingSeriesDelete = { weekNum: w.weekNum, extIndex: s.extIndex, seriesId: s.logData.seriesId };
+                document.getElementById('deleteSeriesOverlay').hidden = false;
+            } else {
+                state.extras[w.weekNum].splice(s.extIndex, 1);
+                updateAdjustmentFactor();
+                save();
+                render();
+            }
         } else {
             delete state.logs[key];
+            updateAdjustmentFactor();
+            save();
+            render();
         }
-        updateAdjustmentFactor();
-        save();
-        render();
     });
 
     wrap.appendChild(row);
   });
+
+  document.getElementById('weekPhase').innerHTML = `${phaseLabel} · ${fmtDate(w.weekStart)} – ${fmtDate(endDate)} · ${w.runDays} trainingen gepland
+  <div style="margin-top:8px; padding:6px 12px; background:rgba(239,234,217,0.06); border-radius:6px; display:inline-block; border: 1px solid var(--border);">
+    <strong style="color:var(--text);">Gepland:</strong> <span style="color:var(--gold);">${totalPlannedKm.toFixed(1)} km</span>
+    ${(totalDoneKm + extraDoneKm) > 0 ? ` <span style="margin: 0 6px; color:var(--text-muted);">|</span> <strong style="color:var(--text);">Gedaan:</strong> <span style="color:var(--success);">${(totalDoneKm + extraDoneKm).toFixed(1)} km</span>` : ''}
+    ${extraDoneKm > 0 ? ` <span style="color:var(--text-muted); font-size:11px;">(waarvan ${extraDoneKm.toFixed(1)} km extra)</span>` : ''}
+  </div>`;
 
   let weekScoreDisplay = document.getElementById('weekScoreDisplay');
   if(scoreCount > 0) {
@@ -1812,12 +1832,19 @@ function renderWeekPanel(){
      document.getElementById('distanceWrap').hidden = false;
      document.getElementById('logInputTypeWrap').hidden = false;
      
-     document.getElementById('logInputType').value = 'time';
+     const logInputType = document.getElementById('logInputType');
+     logInputType.value = 'time'; 
      document.getElementById('logTimeLabel').textContent = 'Tijd (mm:ss of h:mm:ss, optioneel)';
+     document.getElementById('logTime').placeholder = '30:00';
      document.getElementById('logTime').value = '';
      
      document.getElementById('logHr').value = '';
      document.getElementById('logDate').value = new Date().toISOString().slice(0, 10);
+     
+     document.getElementById('repeatWrap').hidden = true;
+     document.getElementById('logRepeat').checked = false;
+     document.getElementById('repeatUntilWrap').hidden = true;
+     document.getElementById('editSeriesWrap').hidden = true;
      
      const warnEl = document.getElementById('extraWarning');
      if(w.runDays >= (state.maxDays || 4)) {
@@ -1841,19 +1868,22 @@ function renderWeekPanel(){
      document.getElementById('logInputTypeWrap').hidden = true;
      
      document.getElementById('logTimeLabel').textContent = 'Totale duur (mm:ss of h:mm:ss)';
+     document.getElementById('logTime').placeholder = '30:00';
      document.getElementById('logTime').value = '';
      
      document.getElementById('logHr').value = '';
      document.getElementById('logDate').value = new Date().toISOString().slice(0, 10);
      
+     document.getElementById('repeatWrap').hidden = false;
+     document.getElementById('logRepeat').checked = false;
+     document.getElementById('repeatUntilWrap').hidden = true;
+     document.getElementById('logRepeatUntil').value = state.raceDate;
+     document.getElementById('editSeriesWrap').hidden = true;
+     
      document.getElementById('extraWarning').hidden = true;
      document.getElementById('skipBtn').hidden = true; 
      document.getElementById('logOverlay').hidden = false;
   };
-
-  const aiOutput = document.getElementById('aiCoachOutput');
-  aiOutput.innerHTML = '';
-  aiOutput.hidden = true;
 }
 
 function renderPaces(){
@@ -1955,6 +1985,7 @@ function renderRaces(){
       document.getElementById('raceDate').value = r.date;
       document.getElementById('raceInputType').value = 'time';
       document.getElementById('raceTimeLabel').textContent = 'Tijd (mm:ss of h:mm:ss)';
+      document.getElementById('raceTime').placeholder = '30:00';
       document.getElementById('raceTime').value = secToTime(r.timeSec);
       document.getElementById('raceHr').value = r.hr || '';
       document.getElementById('raceOverlay').hidden = false;
@@ -1992,8 +2023,8 @@ function renderHistory(){
   rows.forEach(r => {
       let scoreHtml = '—';
       if (!r.log.skipped && !r.isSport) {
-         let sc = r.isExtra ? calcSessionScore(r.log, null, 2) : calcSessionScore(r.log, r.planned, getTargetZoneNum(r.sessionDef));
-         scoreHtml = `<span class="score-badge ${getScoreColorClass(sc)}" style="margin:0;">${sc.toFixed(1)}</span>`;
+         let details = r.isExtra ? calcSessionScoreDetails(r.log, null, 2) : calcSessionScoreDetails(r.log, r.planned, getTargetZoneNum(r.sessionDef));
+         scoreHtml = `<span class="score-badge ${getScoreColorClass(details.score)}" style="margin:0;">${details.score.toFixed(1)} <span class="info-icon" style="margin-left:4px; font-size:9px; width:12px; height:12px; line-height:12px;" data-tooltip="${details.text}">i</span></span>`;
       }
       
       let paceOrTime = '—';
@@ -2140,7 +2171,6 @@ function setupEventListeners() {
       calcTimeBtn.onclick = ()=>{
         const newName = document.getElementById('userName').value.trim() || 'Standaard';
         
-        // BUG FIX: Als we de naam aanpassen, gooi de oude naam in het geheugen dan netjes weg.
         if(newName !== currentUsername) {
             allData[newName] = state;
             if(currentUsername !== 'Standaard') {
@@ -2198,14 +2228,25 @@ function setupEventListeners() {
   const raceInputType = document.getElementById('raceInputType');
   if(raceInputType) {
       raceInputType.onchange = (e) => {
-          document.getElementById('raceTimeLabel').textContent = e.target.value === 'pace' ? 'Tijd (mm:ss per km)' : 'Tijd (mm:ss of h:mm:ss)';
+          const isPace = e.target.value === 'pace';
+          document.getElementById('raceTimeLabel').textContent = isPace ? 'Tempo (mm:ss per km)' : 'Tijd (mm:ss of h:mm:ss)';
+          document.getElementById('raceTime').placeholder = isPace ? '5:00' : '30:00';
       };
   }
   
   const logInputType = document.getElementById('logInputType');
   if(logInputType) {
       logInputType.onchange = (e) => {
-          document.getElementById('logTimeLabel').textContent = e.target.value === 'pace' ? 'Tempo (mm:ss per km)' : 'Tijd (mm:ss of h:mm:ss, optioneel)';
+          const isPace = e.target.value === 'pace';
+          document.getElementById('logTimeLabel').textContent = isPace ? 'Tempo (mm:ss per km)' : 'Tijd (mm:ss of h:mm:ss, optioneel)';
+          document.getElementById('logTime').placeholder = isPace ? '5:00' : '30:00';
+      };
+  }
+  
+  const logRepeat = document.getElementById('logRepeat');
+  if (logRepeat) {
+      logRepeat.onchange = (e) => {
+          document.getElementById('repeatUntilWrap').hidden = !e.target.checked;
       };
   }
 
@@ -2227,36 +2268,104 @@ function setupEventListeners() {
             timeSec = isPace ? parsedSec * distance : parsedSec;
         }
 
-        let targetWeekNum = week.weekNum;
+        const isEditing = session != null && session.logData != null;
+        const editSeries = document.getElementById('logEditSeries') && document.getElementById('logEditSeries').checked && !document.getElementById('editSeriesWrap').hidden;
+        const createSeries = document.getElementById('logRepeat') && document.getElementById('logRepeat').checked && !document.getElementById('repeatWrap').hidden;
+
         if (isExtra) {
-            const sd = new Date(state.startDate + 'T00:00:00');
-            const ld = new Date(dateStr + 'T00:00:00');
+            let targetWeekNum = week.weekNum;
+            const sd = new Date(state.startDate + 'T00:00:00Z');
+            const ld = new Date(dateStr + 'T00:00:00Z');
             const diffDays = Math.floor((ld - sd) / DAY);
             if (diffDays < 0) {
                 targetWeekNum = 1;
             } else {
                 targetWeekNum = Math.floor(diffDays / 7) + 1;
-                const raceD = new Date(state.raceDate + 'T00:00:00');
-                const totalDays = Math.max(daysBetween(sd, raceD), 7);
+                const raceD = new Date(state.raceDate + 'T00:00:00Z');
+                const totalDays = Math.max(Math.round((raceD - sd)/DAY), 7);
                 const totalWeeks = Math.max(6, Math.ceil(totalDays/7));
                 if (targetWeekNum > totalWeeks) targetWeekNum = totalWeeks;
             }
-        }
-        
-        if (isExtra) {
+
             if(!state.extras) state.extras = {};
             if(!state.extras[targetWeekNum]) state.extras[targetWeekNum] = [];
-            
-            if (session && session.isExtra) {
+
+            if (isEditing) {
                 const oldWeekNum = week.weekNum;
-                if (oldWeekNum !== targetWeekNum) {
-                    state.extras[oldWeekNum].splice(session.extIndex, 1);
-                    state.extras[targetWeekNum].push({ id: session.logData.id, isSport, sportName, distance, timeSec, feel, hr, skipped: false, date: dateStr });
-                } else {
-                    state.extras[targetWeekNum][session.extIndex] = { id: session.logData.id, isSport, sportName, distance, timeSec, feel, hr, skipped: false, date: dateStr };
+                const oldLog = session.logData;
+                
+                const idx = state.extras[oldWeekNum].findIndex(e => e.id === oldLog.id);
+                if(idx !== -1) state.extras[oldWeekNum].splice(idx, 1);
+                
+                state.extras[targetWeekNum].push({
+                    id: oldLog.id,
+                    isSport,
+                    sportName,
+                    distance,
+                    timeSec,
+                    feel,
+                    hr,
+                    skipped: false,
+                    date: dateStr,
+                    seriesId: oldLog.seriesId
+                });
+
+                if (editSeries && oldLog.seriesId) {
+                    for (const w in state.extras) {
+                        state.extras[w].forEach(ext => {
+                            if (ext.seriesId === oldLog.seriesId && ext.id !== oldLog.id) {
+                                ext.sportName = sportName;
+                                ext.distance = distance;
+                                ext.timeSec = timeSec;
+                                ext.feel = feel;
+                                ext.hr = hr;
+                            }
+                        });
+                    }
                 }
             } else {
-                state.extras[targetWeekNum].push({ id: Date.now(), isSport, sportName, distance, timeSec, feel, hr, skipped: false, date: dateStr });
+                let datesToLog = [dateStr];
+                if (createSeries) {
+                    let limitDateStr = document.getElementById('logRepeatUntil').value || state.raceDate; 
+                    let limitDate = new Date(limitDateStr + 'T00:00:00Z');
+                    let nextDate = new Date(dateStr + 'T00:00:00Z');
+                    while (true) {
+                        nextDate.setUTCDate(nextDate.getUTCDate() + 7);
+                        if (nextDate > limitDate) break;
+                        datesToLog.push(nextDate.toISOString().slice(0,10));
+                    }
+                }
+                
+                let newSeriesId = createSeries ? Date.now() + Math.random() : null;
+
+                datesToLog.forEach(dStr => {
+                    let tWeekNum = targetWeekNum;
+                    const lDate = new Date(dStr + 'T00:00:00Z');
+                    const dDays = Math.floor((lDate - sd) / DAY);
+                    if (dDays < 0) {
+                        tWeekNum = 1;
+                    } else {
+                        tWeekNum = Math.floor(dDays / 7) + 1;
+                        const raceD = new Date(state.raceDate + 'T00:00:00Z');
+                        const totalDays = Math.max(Math.round((raceD - sd)/DAY), 7);
+                        const totalWeeks = Math.max(6, Math.ceil(totalDays/7));
+                        if (tWeekNum > totalWeeks) tWeekNum = totalWeeks;
+                    }
+                    if(!state.extras[tWeekNum]) state.extras[tWeekNum] = [];
+                    
+                    state.extras[tWeekNum].push({ 
+                        id: Date.now() + Math.random(), 
+                        isSport, 
+                        sportName, 
+                        distance, 
+                        timeSec, 
+                        feel, 
+                        hr, 
+                        skipped: false, 
+                        date: dStr,
+                        seriesId: newSeriesId
+                    });
+                });
             }
         } else {
             const key = sessionKey(week.weekNum, session.idx);
@@ -2351,9 +2460,6 @@ function setupEventListeners() {
         render();
       };
   }
-  
-  const aiBtn = document.getElementById('aiCoachBtn');
-  if(aiBtn) aiBtn.onclick = getAICoachAdvice;
 
   const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
   if (cancelDeleteBtn) {
@@ -2367,7 +2473,6 @@ function setupEventListeners() {
       confirmDeleteBtn.onclick = () => {
           const target = document.getElementById('deleteConfirmOverlay').dataset.target;
           if (target && allData[target]) {
-              // 1. Verwijder uit geheugen
               delete allData[target]; 
               
               if (currentUsername === target) {
@@ -2375,15 +2480,39 @@ function setupEventListeners() {
                   state = null;
               }
               
-              // 2. Direct Opslaan in de kluis
               save();
               
-              // 3. Verberg de pop-up
               document.getElementById('deleteConfirmOverlay').hidden = true;
               
-              // 4. Update het scherm direct vanuit het geheugen
               renderProfileListOrOnboarding();
           }
+      };
+  }
+
+  const deleteSeriesOverlay = document.getElementById('deleteSeriesOverlay');
+  if (deleteSeriesOverlay) {
+      document.getElementById('btnCancelSeriesDelete').onclick = () => { deleteSeriesOverlay.hidden = true; };
+      document.getElementById('btnDeleteOne').onclick = () => {
+         if(pendingSeriesDelete) {
+             const { weekNum, extIndex } = pendingSeriesDelete;
+             state.extras[weekNum].splice(extIndex, 1);
+             updateAdjustmentFactor();
+             save();
+             render();
+         }
+         deleteSeriesOverlay.hidden = true;
+      };
+      document.getElementById('btnDeleteSeries').onclick = () => {
+         if(pendingSeriesDelete) {
+             const { seriesId } = pendingSeriesDelete;
+             for (const w in state.extras) {
+                 state.extras[w] = state.extras[w].filter(ext => ext.seriesId !== seriesId);
+             }
+             updateAdjustmentFactor();
+             save();
+             render();
+         }
+         deleteSeriesOverlay.hidden = true;
       };
   }
 }

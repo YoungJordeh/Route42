@@ -29,16 +29,18 @@
     --border: rgba(239,234,217,0.13);
   }
   
-  /* Reset & Mobile Prevention */
+  /* Reset & Strict Mobile Prevention */
   html, body {
     overflow-x: hidden; 
     width: 100%;
     max-width: 100vw;
+    position: relative;
+    margin: 0;
+    padding: 0;
   }
   *{box-sizing:border-box;}
   
   body, input, select, button, textarea {
-    margin:0;
     background:var(--bg);
     color:var(--text);
     font-family:'Inter', sans-serif;
@@ -119,6 +121,10 @@
 
   /* ---- GRID ---- */
   .grid{display:grid; grid-template-columns:1.5fr 1fr; gap:20px; align-items:start;}
+  
+  /* CRUCIAAL VOOR MOBIEL: Voorkomt dat de secties uit de viewport worden gedrukt door tabellen */
+  .grid > section, .grid > aside { min-width: 0; max-width: 100%; }
+  
   @media (max-width:820px){ .grid{grid-template-columns:1fr;} }
 
   .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -130,6 +136,7 @@
   .card{
     background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:20px 22px; margin-bottom:16px;
     transition: background-color 0.3s ease, border-color 0.3s ease;
+    max-width: 100%; box-sizing: border-box;
   }
   .card h2{font-size:20px; margin-bottom:4px;}
   .card h3{font-size:14px; letter-spacing:.06em; color:var(--gold); margin-bottom:14px;}
@@ -137,7 +144,7 @@
 
   /* ---- SESSIONS & SCORES ---- */
   .session-type{
-    font-size:11px; font-weight:600; letter-spacing:.06em; padding:3px 8px; border-radius:20px; text-transform: uppercase; white-space: nowrap;
+    font-size:11px; font-weight:600; letter-spacing:.06em; padding:3px 8px; border-radius:20px; text-transform: uppercase; white-space: nowrap; flex-shrink: 0;
   }
   .session-type.long{background:rgba(212,167,44,.15); color:var(--gold);}
   .session-type.quality{background:rgba(193,80,46,.18); color:#e08863;}
@@ -145,13 +152,15 @@
   .session-type.extra{background:rgba(154,171,154,.18); color:var(--text-muted);}
   
   .info-icon {
-    display: inline-block; width: 16px; height: 16px; border-radius: 50%;
+    display: inline-flex; justify-content: center; align-items: center; width: 16px; height: 16px; border-radius: 50%;
     background: rgba(239,234,217,0.15); color: var(--text); text-align: center;
-    font-size: 10px; font-weight: bold; line-height: 16px; cursor: pointer;
+    font-size: 10px; font-weight: bold; line-height: 1; cursor: pointer;
     margin-left: 6px; vertical-align: middle; transition: background 0.2s;
-    position: relative; outline: none;
+    position: relative; flex-shrink: 0;
   }
-  .info-icon:hover, .info-icon:focus { background: var(--gold); color: #000; }
+  
+  /* GEFIXT VOOR MOBIEL: De .active class handelt het openen en sluiten af i.p.v. CSS hover */
+  .info-icon:hover, .info-icon.active { background: var(--gold); color: #000; }
   .info-icon::after {
     content: attr(data-tooltip);
     position: absolute; bottom: 120%; left: 50%; transform: translateX(-50%);
@@ -166,8 +175,12 @@
     border-width: 5px; border-style: solid; border-color: var(--text) transparent transparent transparent;
     opacity: 0; visibility: hidden; transition: opacity 0.2s, bottom 0.2s; z-index: 200; pointer-events: none;
   }
-  .info-icon:hover::after, .info-icon:hover::before,
-  .info-icon:focus::after, .info-icon:focus::before { opacity: 1; visibility: visible; bottom: 135%; }
+  
+  /* Als we via desktop hoveren OF via mobiel tikken (active class) */
+  @media (hover: hover) {
+    .info-icon:hover::after, .info-icon:hover::before { opacity: 1; visibility: visible; bottom: 135%; }
+  }
+  .info-icon.active::after, .info-icon.active::before { opacity: 1; visibility: visible; bottom: 135%; }
 
   .session-detail{font-size:13px; color:var(--text-muted); margin-top:2px;}
   .session-status{font-size:12px; color:var(--text-muted); min-width:110px; text-align:right;}
@@ -175,7 +188,7 @@
   .session-status.skipped{color:var(--rust);}
   .day-badge{
     font-size:10px; color:var(--gold); border:1px solid var(--border); border-radius:20px;
-    padding:2px 8px; margin-left:auto; vertical-align:middle; display:inline-flex; align-items:center; white-space:nowrap;
+    padding:2px 8px; margin-left:auto; vertical-align:middle; display:inline-flex; align-items:center; white-space:nowrap; flex-shrink: 0;
   }
   .session-pace{font-size:12px; color:var(--success); margin-top:5px; font-weight:600;}
   .session-hr{font-size:12px; color:var(--text-muted); margin-top:1px;}
@@ -189,7 +202,7 @@
     display:inline-flex; align-items:center; justify-content:center;
     padding:2px 6px; border-radius:6px; font-size:10px; font-weight:700;
     background:rgba(212,167,44,.15); color:var(--gold); border:1px solid rgba(212,167,44,.3);
-    margin-top:6px;
+    margin-top:6px; white-space: nowrap;
   }
   .score-badge.low{background:rgba(193,80,46,.15); color:var(--rust); border-color:rgba(193,80,46,.3);}
   .score-badge.high{background:rgba(111,162,135,.15); color:var(--success); border-color:rgba(111,162,135,.3);}
@@ -269,7 +282,10 @@
   details.session-accordion { padding: 0; }
   details.session-accordion summary { 
     padding: 14px 16px; align-items: center; justify-content: flex-start; gap: 10px; 
-    flex-wrap: wrap; 
+    flex-wrap: nowrap; /* Keep items nicely aligned */
+  }
+  @media (max-width: 480px) {
+    details.session-accordion summary { flex-wrap: wrap; }
   }
   details.session-accordion .acc-content { margin: 0 16px 16px 16px; padding-top: 14px; }
 
@@ -350,7 +366,7 @@
       <div id="obErrorMsg" class="extra-warn" style="margin-top:8px;" hidden></div>
     </div>
 
-    <!-- NIEUW: DOEL EN DATUMS -->
+    <!-- DOEL EN DATUMS -->
     <h3 style="margin-top: 24px; font-size: 15px; color: var(--gold); margin-bottom:10px;">Jouw doel</h3>
     
     <div class="field">
@@ -369,7 +385,7 @@
        </div>
     </div>
     
-    <!-- NIEUW: MEERDERE REFERENTIETIJDEN -->
+    <!-- MEERDERE REFERENTIETIJDEN -->
     <h3 style="margin-top: 14px; font-size: 15px; color: var(--gold); margin-bottom:6px;">Referentietijd(en) (optioneel)</h3>
     <p style="font-size:11px; color:var(--text-muted); margin-bottom: 12px;">Heb je recent voluit gelopen? Voeg hier tijden toe voor perfecte tempo's vanaf dag 1.</p>
     
@@ -382,7 +398,7 @@
            <input type="number" id="obRefDist" placeholder="Bv. 5" step="0.1">
          </div>
          <div class="field" style="margin:0;">
-           <label>Gemiddelde hartslag (opt.)</label>
+           <label>Gem. hartslag (opt.)</label>
            <input type="number" id="obRefHr" placeholder="Bv. 150">
          </div>
       </div>
@@ -543,7 +559,7 @@
         <div class="week-score-wrap">
           <button class="btn secondary small" id="addExtraBtn">+ Extra hardlooptraining</button>
           <button class="btn secondary small" id="addExtraSportBtn" style="margin-left:8px;">+ Extra andere sport</button>
-          <div class="week-score-text" id="weekScoreDisplay" style="margin-left:auto;"></div>
+          <div class="week-score-text" id="weekScoreDisplay"></div>
         </div>
 
         <details class="accordion" style="margin-top:20px; margin-bottom:0; border-top:none;">
@@ -1294,7 +1310,7 @@ function generatePlan(skipBioLoop = false){
           sessions.push({idx:4, type:'easy', label:'Extra duurloop', detail:'Bouw aerobe basis veilig uit', km: Math.max(4, Math.round(easyKm*0.8)), meta:{kind:'easy'}});
       }
       if (runDays >= 6) {
-          sessions.push({idx:5, type:'easy', label:'Korte herstelloop', detail:'Actief herstel', km: 4, meta:{kind:'recovery'}});
+          sessions.push({idx:5, type:'easy', label:'Korte herstelloop', detail:'Actief herstel', km: 5, meta:{kind:'recovery'}});
       }
       if (runDays >= 7) {
           sessions.push({idx:6, type:'easy', label:'Korte herstelloop', detail:'Actief herstel', km: 4, meta:{kind:'recovery'}});
@@ -1708,12 +1724,13 @@ function renderHRZones(){
   const tip4 = "ZONE 4 (80-90% van max) - Drempel (Threshold)\n\nWat het is: Zwaar tempo; praten lukt bijna niet meer.\nWat het doet: Verhoogt je 'omslagpunt'. Je leert melkzuur (verzuring) sneller af te breken.";
   const tip5 = "ZONE 5 (90-100% van max) - Maximaal\n\nWat het is: Voluit sprinten; dit hou je maar kort vol.\nWat het doet: Traint je topsnelheid en maximale prestatievermogen (voor korte intervallen).";
 
+  // Tabindex verwijderd, afgehandeld via JS .active class voor mobiel
   wrap.innerHTML = `
-    <div class="zone-row"><span class="z-name">Z1 <span class="info-icon" tabindex="0" data-tooltip="${tip1}">i</span></span><span class="z-bpm">${z1.low} - ${z1.high}</span></div>
-    <div class="zone-row"><span class="z-name">Z2 <span class="info-icon" tabindex="0" data-tooltip="${tip2}">i</span></span><span class="z-bpm">${z2.low} - ${z2.high}</span></div>
-    <div class="zone-row"><span class="z-name">Z3 <span class="info-icon" tabindex="0" data-tooltip="${tip3}">i</span></span><span class="z-bpm">${z3.low} - ${z3.high}</span></div>
-    <div class="zone-row"><span class="z-name">Z4 <span class="info-icon" tabindex="0" data-tooltip="${tip4}">i</span></span><span class="z-bpm">${z4.low} - ${z4.high}</span></div>
-    <div class="zone-row"><span class="z-name">Z5 <span class="info-icon" tabindex="0" data-tooltip="${tip5}">i</span></span><span class="z-bpm">${z5.low} - ${z5.high}</span></div>
+    <div class="zone-row"><span class="z-name">Z1 <span class="info-icon" data-tooltip="${tip1}">i</span></span><span class="z-bpm">${z1.low} - ${z1.high}</span></div>
+    <div class="zone-row"><span class="z-name">Z2 <span class="info-icon" data-tooltip="${tip2}">i</span></span><span class="z-bpm">${z2.low} - ${z2.high}</span></div>
+    <div class="zone-row"><span class="z-name">Z3 <span class="info-icon" data-tooltip="${tip3}">i</span></span><span class="z-bpm">${z3.low} - ${z3.high}</span></div>
+    <div class="zone-row"><span class="z-name">Z4 <span class="info-icon" data-tooltip="${tip4}">i</span></span><span class="z-bpm">${z4.low} - ${z4.high}</span></div>
+    <div class="zone-row"><span class="z-name">Z5 <span class="info-icon" data-tooltip="${tip5}">i</span></span><span class="z-bpm">${z5.low} - ${z5.high}</span></div>
   `;
 }
 
@@ -1830,7 +1847,7 @@ function renderWeekPanel(){
       `;
     } else if(log){
       const logHrDisplay = log.hr ? ` · ❤️ ${log.hr} BPM` : '';
-      const scoreBadge = details ? `<span class="score-badge ${getScoreColorClass(details.score)}">Cijfer: ${details.score.toFixed(1)} <span class="info-icon" tabindex="0" style="margin-left:4px; font-size:9px; width:12px; height:12px; line-height:12px;" data-tooltip="${details.text}">i</span></span>` : '';
+      const scoreBadge = details ? `<span class="score-badge ${getScoreColorClass(details.score)}">Cijfer: ${details.score.toFixed(1)} <span class="info-icon" style="margin-left:4px; font-size:9px; width:12px; height:12px; line-height:12px;" data-tooltip="${details.text}">i</span></span>` : '';
       const distDisplay = isSport ? '' : `${log.distance} km`;
       statusHtml = `<div class="session-status done">${distDisplay}${timeOrPaceDisplay}${logHrDisplay}<br>${scoreBadge}</div>`;
       actionHtml = `
@@ -1843,7 +1860,7 @@ function renderWeekPanel(){
     }
     
     const tooltip = getSessionTooltip(s);
-    const infoIcon = tooltip ? `<span class="info-icon" tabindex="0" data-tooltip="${tooltip}">i</span>` : '';
+    const infoIcon = tooltip ? `<span class="info-icon" data-tooltip="${tooltip}">i</span>` : '';
     const paceLabel = sessionPaceLabel(s, p);
     const hrLabel = sessionHrLabel(s);
     
@@ -1859,7 +1876,7 @@ function renderWeekPanel(){
       <details class="accordion session-accordion" style="margin-bottom:10px; padding:0;">
           <summary class="session-summary">
             <span class="session-type ${s.type}" ${typeClass}>${typeName}</span>
-            <span style="font-weight:600; flex:1; min-width:0;">${s.label} ${distTarget}</span>
+            <span style="font-weight:600; flex:1; min-width:0; word-break: break-word;">${s.label} ${distTarget}</span>
             <span style="font-size:12px; color:var(--text-muted); text-align:right;">${dayBadgeHtml}</span>
           </summary>
           <div class="acc-content session-content">
@@ -2035,11 +2052,11 @@ function renderPaces(){
 
       topWrap.innerHTML = `
         <div style="background:var(--panel-alt); padding:6px 12px; border-radius:8px; border:1px solid var(--border); font-size:12px; display:flex; align-items:center;">
-            <span style="color:var(--text-muted);">Verwachte eindtijd (${distName}) <span class="info-icon" tabindex="0" data-tooltip="${tooltipReal}" style="margin-left:6px; margin-right:4px;">i</span>:</span> 
+            <span style="color:var(--text-muted);">Verwachte eindtijd (${distName}) <span class="info-icon" data-tooltip="${tooltipReal}" style="margin-left:6px; margin-right:4px;">i</span>:</span> 
             <strong style="color:var(--gold); font-size:14px; font-family:'Oswald'; margin-left:4px;">${secToTime(p.currentRaceSec)}</strong>
         </div>
         <div style="background:var(--panel-alt); padding:6px 12px; border-radius:8px; border:1px solid var(--border); font-size:12px; display:flex; align-items:center;">
-            <span style="color:var(--text-muted);">Optimaal (Top) <span class="info-icon" tabindex="0" data-tooltip="${tooltipOpt}" style="margin-left:6px; margin-right:4px;">i</span>:</span> 
+            <span style="color:var(--text-muted);">Optimaal (Top) <span class="info-icon" data-tooltip="${tooltipOpt}" style="margin-left:6px; margin-right:4px;">i</span>:</span> 
             <strong style="color:var(--gold); font-size:14px; font-family:'Oswald'; margin-left:4px;">${secToTime(p.eliteRaceSec)}</strong>
         </div>
       `;
@@ -2121,7 +2138,7 @@ function renderHistory(){
       let scoreHtml = '—';
       if (!r.log.skipped && !r.isSport) {
          let details = r.isExtra ? calcSessionScoreDetails(r.log, null, 2) : calcSessionScoreDetails(r.log, r.planned, getTargetZoneNum(r.sessionDef));
-         scoreHtml = `<span class="score-badge ${getScoreColorClass(details.score)}" style="margin:0;">${details.score.toFixed(1)} <span class="info-icon" tabindex="0" style="margin-left:4px; font-size:9px; width:12px; height:12px; line-height:12px;" data-tooltip="${details.text}">i</span></span>`;
+         scoreHtml = `<span class="score-badge ${getScoreColorClass(details.score)}" style="margin:0;">${details.score.toFixed(1)} <span class="info-icon" style="margin-left:4px; font-size:9px; width:12px; height:12px; line-height:12px;" data-tooltip="${details.text}">i</span></span>`;
       }
       
       let paceOrTime = '—';
@@ -2865,15 +2882,16 @@ async function initFlow() {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
-  // Sluit tooltips als je ergens anders op het scherm tikt (speciaal voor mobiel)
-  document.addEventListener('touchstart', (e) => {
-      if (!e.target.classList.contains('info-icon')) {
-          document.querySelectorAll('.info-icon').forEach(icon => icon.blur());
-      }
-  });
+  // Slimme sluiting voor de "i" icoontjes (tooltips) op mobiel
   document.addEventListener('click', (e) => {
-      if (!e.target.classList.contains('info-icon')) {
-          document.querySelectorAll('.info-icon').forEach(icon => icon.blur());
+      const icon = e.target.closest('.info-icon');
+      if (icon) {
+          e.preventDefault();
+          const isActive = icon.classList.contains('active');
+          document.querySelectorAll('.info-icon.active').forEach(i => i.classList.remove('active'));
+          if (!isActive) icon.classList.add('active');
+      } else {
+          document.querySelectorAll('.info-icon.active').forEach(i => i.classList.remove('active'));
       }
   });
   

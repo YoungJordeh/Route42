@@ -63,7 +63,6 @@
     padding: 36px; width: 100%; max-width: 500px; 
     margin: 2vh auto;
     box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    box-sizing: border-box; /* Forceert het formulier om op smalle schermen in beeld te blijven */
   }
   @media (max-width: 480px) {
     .welcome-card { padding: 24px 16px; }
@@ -344,7 +343,7 @@
   .modal h3{color:var(--text); font-size:18px; margin-bottom:16px; text-transform:none; letter-spacing:0;}
   .field{margin-bottom:14px; min-width: 0;}
   .field label{display:block; font-size:12px; color:var(--text-muted); margin-bottom:5px;}
-  .field input:not([type="radio"]):not([type="checkbox"]), .field select, .fake-input {
+  .field input:not([type="radio"]):not([type="checkbox"]), .field select {
     width:100%; max-width:100%; background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:8px 10px;
     color:var(--text); font-size:14px; color-scheme: dark; font-family:'Inter', sans-serif;
     height: 42px; box-sizing: border-box; display: block;
@@ -352,7 +351,7 @@
   .fake-input { 
     display: flex; align-items: center; gap: 10px; padding: 0 10px; 
     background: var(--gold); border-color: var(--gold); cursor: pointer;
-    transition: filter 0.2s ease;
+    transition: filter 0.2s ease; border-radius: 8px; height: 42px; box-sizing: border-box;
   }
   .fake-input:hover { filter: brightness(1.08); }
   .fake-input span { color: #1c1608 !important; font-weight: 600; font-size: 14px; }
@@ -1116,7 +1115,7 @@ function getTargetZoneNum(s) {
 }
 
 // ---------- PHYSIOLOGICAL ADAPTATION (CHRONOLOGICAL) ----------
-function orderIdx(idx) { return idx === 0 ? 99 : idx; }
+function orderIdx(idx) { return idx === 0 ? 99 : (typeof idx === 'string' ? 50 : idx); }
 
 function getHistoricalLogsUpTo(limitW, limitIdx) {
     const logs = [];
@@ -1213,7 +1212,7 @@ function getHrBioFeedbackUpTo(limitW, limitIdx) {
         if (item.type === 'core') {
             if (item.idx === 1) zNum = (item.w % 2 === 1) ? 4 : 5;
             else if (item.idx === 0) zNum = 2;
-            else zNum = 2; // easy
+            else zNum = 2; 
         }
         const zone = getHrZone(zNum);
         if (item.log.hr < zone.low) offsets.push(-(zone.low - item.log.hr) * 1.5);
@@ -1323,7 +1322,7 @@ function generatePlan(){
     const isCutback = !isTaper && !isRaceWeek && (weekNum % 4 === 0);
     const weekStart = new Date(startDate.getTime() + i*7*DAY);
 
-    // V-factor puur op basis van het verleden (voor de start van déze week)
+    // V-factor right before this week started determines layout
     let wStartVFactor = getVFactorUpTo(weekNum, -1);
 
     let lr;
@@ -1941,7 +1940,7 @@ function renderWeekPanel(){
     const tooltip = getSessionTooltip(s);
     const infoIcon = tooltip ? `<span class="info-icon" data-tooltip="${tooltip}">i</span>` : '';
     
-    // Bereken tempo bevroren op het specifieke moment in de tijd
+    // Chronologische pacing ophalen (bevroren op het moment van de sessie)
     const sPaces = isExtra ? calcPaces(w.weekNum, 50) : calcPaces(w.weekNum, s.idx);
     const paceLabel = sessionPaceLabel(s, sPaces);
     const hrLabel = sessionHrLabel(s);
@@ -2301,11 +2300,17 @@ function validateObStep() {
         resetBorders(nameEl);
         if(!nameEl.value.trim()) markError(nameEl);
     } else if (currentObStep === 2) {
-        const tEl = document.getElementById('obTargetDist');
+        const distSelect = document.getElementById('obTargetDistSelect');
+        const distCustom = document.getElementById('obTargetDistCustom');
         const sEl = document.getElementById('obStartDate');
         const rEl = document.getElementById('obRaceDate');
-        resetBorders(tEl, sEl, rEl);
-        if(!tEl.value) markError(tEl);
+        
+        resetBorders(distSelect, distCustom, sEl, rEl);
+        
+        if (distSelect && distSelect.value === 'custom') {
+            if (!distCustom.value) markError(distCustom);
+        }
+        
         if(!sEl.value) markError(sEl);
         if(!rEl.value) markError(rEl);
     } else if (currentObStep === 4) {
@@ -2351,7 +2356,12 @@ function startLoadingSequence() {
   state = allData[newName];
   currentUsername = newName;
 
-  state.targetDistance = parseFloat(document.getElementById('obTargetDist').value) || 42.2;
+  let tDist = document.getElementById('obTargetDistSelect').value;
+  if (tDist === 'custom') {
+      tDist = document.getElementById('obTargetDistCustom').value;
+  }
+  state.targetDistance = parseFloat(tDist) || 42.2;
+  
   state.startDate = document.getElementById('obStartDate').value;
   state.raceDate = document.getElementById('obRaceDate').value;
   state.gender = document.getElementById('obGender').value;
@@ -2451,15 +2461,7 @@ function setupEventListeners() {
               customInput.hidden = false;
           } else {
               customInput.hidden = true;
-              document.getElementById('obTargetDist').value = e.target.value;
           }
-      };
-  }
-
-  const obTargetDistCustom = document.getElementById('obTargetDistCustom');
-  if (obTargetDistCustom) {
-      obTargetDistCustom.oninput = (e) => {
-          document.getElementById('obTargetDist').value = e.target.value;
       };
   }
 
